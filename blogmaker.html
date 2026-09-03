@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NukeTheFoids Blog Maker</title>
+<style>
+  :root {
+    --bg: #fff;
+    --bg2: #f8f9fa;
+    --fg: #000;
+    --fg2: #555;
+    --border: #dee2e6;
+    --border2: #adb5bd;
+    --accent: #000;
+    --radius: 8px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: "SFMono-Regular", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #000;
+      --bg2: #111;
+      --fg: #e9ecef;
+      --fg2: #adb5bd;
+      --border: #333;
+      --border2: #555;
+      --accent: #fff;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font); background: var(--bg); color: var(--fg); min-height: 100vh; }
+
+  .app { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+  header h1 { font-size: 1.25rem; font-weight: 700; }
+  header span { font-size: 0.85rem; color: var(--fg2); }
+
+  .tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+  .tab { padding: 0.6rem 1.25rem; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: var(--fg2); background: none; border: none; border-bottom: 2px solid transparent; transition: all 0.15s; }
+  .tab:hover { color: var(--fg); }
+  .tab.active { color: var(--fg); font-weight: 700; border-bottom-color: var(--accent); }
+
+  .field { margin-bottom: 1rem; }
+  .field label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--fg2); }
+  .field input, .field textarea { width: 100%; padding: 0.6rem 0.8rem; font-size: 0.95rem; font-family: var(--font); background: var(--bg2); color: var(--fg); border: 1px solid var(--border); border-radius: var(--radius); outline: none; transition: border 0.15s; }
+  .field input:focus, .field textarea:focus { border-color: var(--accent); }
+  .field textarea { resize: vertical; min-height: 1.6rem; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 2px; padding: 0.5rem; background: var(--bg2); border: 1px solid var(--border); border-bottom: none; border-radius: var(--radius) var(--radius) 0 0; }
+  .toolbar button { padding: 0.4rem 0.65rem; font-size: 0.85rem; font-family: var(--font); background: none; color: var(--fg); border: 1px solid transparent; border-radius: 4px; cursor: pointer; transition: all 0.1s; }
+  .toolbar button:hover { background: var(--border); }
+  .toolbar .sep { width: 1px; background: var(--border); margin: 0 0.3rem; }
+
+  .editor-wrap { position: relative; }
+  #editor {
+    width: 100%; min-height: 450px; padding: 1rem; font-size: 0.95rem;
+    font-family: var(--mono); line-height: 1.7; background: var(--bg2);
+    color: var(--fg); border: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius);
+    outline: none; resize: vertical; tab-size: 2;
+  }
+  #editor:focus { border-color: var(--accent); }
+
+  #preview {
+    display: none; width: 100%; min-height: 450px; padding: 1.5rem;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius);
+    overflow-y: auto; font-size: 0.95rem; line-height: 1.8;
+  }
+  #preview h1 { font-size: 1.8rem; margin: 1.5rem 0 0.75rem; font-weight: 700; }
+  #preview h2 { font-size: 1.4rem; margin: 1.5rem 0 0.75rem; font-weight: 700; }
+  #preview h3 { font-size: 1.15rem; margin: 1.25rem 0 0.5rem; font-weight: 700; }
+  #preview p { margin-bottom: 1rem; }
+  #preview strong { font-weight: 700; }
+  #preview em { font-style: italic; }
+  #preview a { color: var(--fg); text-decoration: underline; }
+  #preview code { font-family: var(--mono); background: var(--bg); padding: 0.1em 0.4em; border-radius: 4px; font-size: 0.9em; }
+  #preview pre { background: var(--bg); border-radius: var(--radius); padding: 1rem; overflow-x: auto; margin-bottom: 1rem; }
+  #preview pre code { background: none; padding: 0; }
+  #preview blockquote { border-left: 4px solid var(--border2); padding: 0.5rem 1rem; margin: 1rem 0; color: var(--fg2); }
+  #preview img { max-width: 100%; border-radius: var(--radius); margin: 1rem 0; }
+  #preview ul, #preview ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+  #preview li { margin-bottom: 0.3rem; }
+  #preview hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  .actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap; }
+  .btn { padding: 0.6rem 1.25rem; font-size: 0.9rem; font-weight: 600; font-family: var(--font); border-radius: var(--radius); cursor: pointer; transition: all 0.15s; border: 1px solid var(--border); background: var(--bg2); color: var(--fg); }
+  .btn:hover { border-color: var(--accent); }
+  .btn-primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .btn-primary:hover { opacity: 0.85; }
+
+  .slug-preview { font-family: var(--mono); font-size: 0.8rem; color: var(--fg2); margin-top: 0.25rem; word-break: break-all; }
+
+  @media (max-width: 600px) {
+    .app { padding: 1rem; }
+    .field-row { grid-template-columns: 1fr; }
+    .toolbar button { padding: 0.35rem 0.5rem; font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Blog Maker</h1>
+    <span>NukeTheFoids.fun</span>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="write">Tulis</button>
+    <button class="tab" data-tab="preview">Preview</button>
+  </div>
+
+  <div id="write-panel">
+    <div class="field-row">
+      <div class="field">
+        <label>Judul</label>
+        <input type="text" id="f-title" placeholder="Judul artikel...">
+      </div>
+      <div class="field">
+        <label>Tanggal</label>
+        <input type="date" id="f-date">
+      </div>
+    </div>
+    <div class="field">
+      <label>Excerpt</label>
+      <input type="text" id="f-excerpt" placeholder="Ringkasan singkat 1-2 kalimat">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Tags (koma)</label>
+        <input type="text" id="f-tags" placeholder="Teknologi, Opini">
+      </div>
+      <div class="field">
+        <label>Cover (path gambar)</label>
+        <input type="text" id="f-cover" placeholder="/blog/cover-nama.jpg">
+      </div>
+    </div>
+    <div class="slug-preview" id="slug-preview">Slug: --</div>
+  </div>
+
+  <div style="margin-top: 1.25rem;">
+    <div class="toolbar" id="toolbar">
+      <button type="button" title="Bold" onclick="insertFormat('bold')"><b>B</b></button>
+      <button type="button" title="Italic" onclick="insertFormat('italic')"><i>I</i></button>
+      <button type="button" title="Strikethrough" onclick="insertFormat('strike')"><s>S</s></button>
+      <div class="sep"></div>
+      <button type="button" title="Heading 2" onclick="insertFormat('h2')">H2</button>
+      <button type="button" title="Heading 3" onclick="insertFormat('h3')">H3</button>
+      <div class="sep"></div>
+      <button type="button" title="Link" onclick="insertFormat('link')">🔗</button>
+      <button type="button" title="Gambar" onclick="insertFormat('img')">🖼</button>
+      <button type="button" title="Code block" onclick="insertFormat('code')">⟨/⟩</button>
+      <button type="button" title="Inline code" onclick="insertFormat('inlinecode')">`code`</button>
+      <div class="sep"></div>
+      <button type="button" title="Blockquote" onclick="insertFormat('quote')">❝</button>
+      <button type="button" title="Bullet list" onclick="insertFormat('ul')">• List</button>
+      <button type="button" title="Ordered list" onclick="insertFormat('ol')">1. List</button>
+      <button type="button" title="Horizontal rule" onclick="insertFormat('hr')">―</button>
+    </div>
+    <textarea id="editor" placeholder="Tulis konten artikel di sini...&#10;&#10;Gunakan toolbar di atas untuk formatting MDX."></textarea>
+    <div id="preview"></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" onclick="exportMDX()">Export .mdx</button>
+    <button class="btn" onclick="copyToClipboard()">Copy MDX</button>
+    <button class="btn" onclick="importMDX()">Import .mdx</button>
+    <button class="btn" onclick="clearAll()">Clear</button>
+  </div>
+  <input type="file" id="file-input" accept=".mdx,.md" style="display:none" onchange="handleImport(event)">
+</div>
+
+<script>
+const editor = document.getElementById('editor');
+const preview = document.getElementById('preview');
+const slugEl = document.getElementById('slug-preview');
+
+// Set default date to today
+document.getElementById('f-date').valueAsDate = new Date();
+
+// Slug preview
+document.getElementById('f-title').addEventListener('input', function() {
+  const slug = this.value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+  slugEl.textContent = 'Slug: ' + (slug || '--');
+});
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    const tab = this.dataset.tab;
+    if (tab === 'preview') {
+      renderPreview();
+      preview.style.display = 'block';
+      document.getElementById('editor').style.display = 'none';
+      document.getElementById('toolbar').style.display = 'none';
+    } else {
+      preview.style.display = 'none';
+      document.getElementById('editor').style.display = 'block';
+      document.getElementById('toolbar').style.display = 'flex';
+    }
+  });
+});
+
+// Toolbar format insertion
+function insertFormat(type) {
+  const start = editor.selectionStart;
+  const end = editor.selectionEnd;
+  const sel = editor.value.substring(start, end);
+  const before = editor.value.substring(0, start);
+  const after = editor.value.substring(end);
+
+  let insert = '';
+  let cursorOffset = 0;
+
+  switch(type) {
+    case 'bold':
+      insert = `**${sel || 'teks bold'}**`;
+      cursorOffset = sel ? insert.length : 2;
+      break;
+    case 'italic':
+      insert = `*${sel || 'teks italic'}*`;
+      cursorOffset = sel ? insert.length : 1;
+      break;
+    case 'strike':
+      insert = `~~${sel || 'teks coret'}~~`;
+      cursorOffset = sel ? insert.length : 2;
+      break;
+    case 'h2':
+      insert = `\n## ${sel || 'Heading 2'}`;
+      cursorOffset = insert.length;
+      break;
+    case 'h3':
+      insert = `\n### ${sel || 'Heading 3'}`;
+      cursorOffset = insert.length;
+      break;
+    case 'link':
+      insert = `[${sel || 'teks link'}](url)`;
+      cursorOffset = sel ? insert.length - 4 : 1;
+      break;
+    case 'img':
+      insert = `\n![${sel || 'alt text'}](/blog/gambar.jpg)`;
+      cursorOffset = insert.length;
+      break;
+    case 'code':
+      insert = `\n\`\`\`\n${sel || 'kode di sini'}\n\`\`\``;
+      cursorOffset = sel ? insert.length : 4;
+      break;
+    case 'inlinecode':
+      insert = `\`${sel || 'kode'}\``;
+      cursorOffset = sel ? insert.length : 1;
+      break;
+    case 'quote':
+      insert = `\n> ${sel || 'kutipan'}`;
+      cursorOffset = insert.length;
+      break;
+    case 'ul':
+      insert = `\n- ${sel || 'item list'}`;
+      cursorOffset = insert.length;
+      break;
+    case 'ol':
+      insert = `\n1. ${sel || 'item list'}`;
+      cursorOffset = insert.length;
+      break;
+    case 'hr':
+      insert = `\n\n---\n\n`;
+      cursorOffset = insert.length;
+      break;
+  }
+
+  editor.value = before + insert + after;
+  editor.focus();
+  const newPos = start + cursorOffset;
+  editor.setSelectionRange(newPos, newPos);
+}
+
+// Simple markdown preview renderer
+function renderPreview() {
+  let md = editor.value;
+  // Basic MDX to HTML (enough for preview)
+  md = md.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  md = md.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  md = md.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+  md = md.replace(/^---$/gm, '<hr>');
+  md = md.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  md = md.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  md = md.replace(/~~(.+?)~~/g, '<s>$1</s>');
+  md = md.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+  md = md.replace(/```[\s\S]*?```/g, m => {
+    const code = m.replace(/```\w*\n?/, '').replace(/```$/, '');
+    return '<pre><code>' + escapeHtml(code.trim()) + '</code></pre>';
+  });
+  md = md.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+  md = md.replace(/!\[(.+?)\]\((.+?)\)/g, '<img src="$2" alt="$1">');
+  md = md.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
+  md = md.replace(/^- (.+)$/gm, '<li>$1</li>');
+  md = md.replace(/(<li>.*<\/li>\n?)+/g, m => '<ul>' + m + '</ul>');
+  md = md.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+  // Wrap loose lines in <p>
+  md = md.split('\n\n').map(block => {
+    block = block.trim();
+    if (!block || block.startsWith('<h') || block.startsWith('<hr') || block.startsWith('<ul') || block.startsWith('<ol') || block.startsWith('<pre') || block.startsWith('<blockquote') || block.startsWith('<img')) return block;
+    return '<p>' + block.replace(/\n/g, '<br>') + '</p>';
+  }).join('\n');
+  preview.innerHTML = md;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Build frontmatter + content
+function buildMDX() {
+  const title = document.getElementById('f-title').value;
+  const date = document.getElementById('f-date').value;
+  const excerpt = document.getElementById('f-excerpt').value;
+  const tags = document.getElementById('f-tags').value;
+  const cover = document.getElementById('f-cover').value;
+
+  let frontmatter = '---\n';
+  frontmatter += `title: "${title}"\n`;
+  if (date) frontmatter += `date: "${date}"\n`;
+  if (excerpt) frontmatter += `excerpt: "${excerpt}"\n`;
+  if (tags) {
+    const tagArr = tags.split(',').map(t => `"${t.trim()}"`).filter(t => t !== '""');
+    frontmatter += `tags: [${tagArr.join(', ')}]\n`;
+  }
+  if (cover) frontmatter += `cover: "${cover}"\n`;
+  frontmatter += '---\n\n';
+
+  return frontmatter + editor.value;
+}
+
+function getSlug() {
+  return document.getElementById('f-title').value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '') || 'artikel';
+}
+
+// Export as .mdx file
+function exportMDX() {
+  const mdx = buildMDX();
+  const slug = getSlug();
+  const blob = new Blob([mdx], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${slug}.mdx`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// Copy to clipboard
+function copyToClipboard() {
+  const mdx = buildMDX();
+  navigator.clipboard.writeText(mdx).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = 'Tersalin!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+// Import .mdx
+function importMDX() {
+  document.getElementById('file-input').click();
+}
+
+function handleImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const text = ev.target.result;
+    // Parse frontmatter
+    const fmMatch = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+    if (fmMatch) {
+      const fm = fmMatch[1];
+      const content = fmMatch[2].trim();
+      const getField = (name) => {
+        const m = fm.match(new RegExp(name + ':\\s*"?([^"\\n]+)"?'));
+        return m ? m[1].trim() : '';
+      };
+      const getArrField = (name) => {
+        const m = fm.match(new RegExp(name + ':\\s*\\[([^\\]]+)\\]'));
+        return m ? m[1].replace(/"/g, '').trim() : '';
+      };
+      document.getElementById('f-title').value = getField('title');
+      document.getElementById('f-date').value = getField('date');
+      document.getElementById('f-excerpt').value = getField('excerpt');
+      document.getElementById('f-tags').value = getArrField('tags');
+      document.getElementById('f-cover').value = getField('cover');
+      editor.value = content;
+      // Update slug preview
+      document.getElementById('f-title').dispatchEvent(new Event('input'));
+    } else {
+      editor.value = text;
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// Clear
+function clearAll() {
+  if (!confirm('Yakin mau clear semua?')) return;
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-date').valueAsDate = new Date();
+  document.getElementById('f-excerpt').value = '';
+  document.getElementById('f-tags').value = '';
+  document.getElementById('f-cover').value = '';
+  editor.value = '';
+  slugEl.textContent = 'Slug: --';
+}
+
+// Tab support in editor
+editor.addEventListener('keydown', function(e) {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const start = this.selectionStart;
+    const end = this.selectionEnd;
+    this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
+    this.selectionStart = this.selectionEnd = start + 2;
+  }
+});
+</script>
+</body>
+</html>
