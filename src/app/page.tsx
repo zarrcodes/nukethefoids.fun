@@ -8,9 +8,9 @@ export default function HomePage() {
   return (
     <div>
       <section className="mb-5 pb-4 border-bottom border-secondary-subtle">
-        <h1 className="fw-bold mb-2 h2">Abdurrazzaq Mohammad Ibrahim</h1>
+        <h1 className="fw-bold mb-2 h2">Hi, i'm Abdurrazzaq Ibrahim</h1>
         <p className="text-secondary lead fs-6">
-          Selamat datang di <strong>NukeTheFoids.fun</strong>. Tempat saya mendokumentasikan catatan teknis, ide, proyek eksekusi, serta pemikiran seputar pengembangan perangkat lunak dan kehidupan sehari-hari.
+          Welcome to <strong>NukeTheFoids.fun</strong>. Di Website ini, isinya hanya sejumlah ide, opini, dan Kegiatan saya sebagai Pelajar.
         </p>
       </section>
 
