@@ -7,32 +7,30 @@ export default function Navbar() {
   const pathname = usePathname();
 
   const navItems = [
-    { name: 'Beranda', path: '/' },
-    { name: 'Blog', path: '/blog' },
-    { name: 'Tentang', path: '/tentang' },
+    { name: 'Home', path: '/' },
+    { name: 'Articles', path: '/articles' },
+    { name: 'About', path: '/about' },
   ];
 
   return (
-    <nav className="navbar navbar-expand border-bottom border-secondary-subtle sticky-top bg-body py-3">
-      <div className="container" style={{ maxWidth: '720px' }}>
-        <Link href="/" className="navbar-brand fw-bold fs-5 text-decoration-none">
+    <header className="site-header" role="banner">
+      <div className="header-inner">
+        <Link href="/" className="header-brand" aria-label="NukeTheFoids.fun - Home">
           NukeTheFoids.fun
         </Link>
-        <div className="navbar-nav ms-auto gap-3">
-          {navItems.map((item) => {
-            const isActive = pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                href={item.path}
-                className={`nav-link px-0 ${isActive ? 'fw-bold text-body border-bottom border-2 border-body' : 'text-secondary'}`}
-              >
-                {item.name}
-              </Link>
-            );
-          })}
-        </div>
+        <nav className="header-nav" role="navigation" aria-label="Main navigation">
+          {navItems.map((item) => (
+            <Link
+              key={item.path}
+              href={item.path}
+              className={pathname === item.path ? 'active' : ''}
+              aria-current={pathname === item.path ? 'page' : undefined}
+            >
+              {item.name}
+            </Link>
+          ))}
+        </nav>
       </div>
-    </nav>
+    </header>
   );
 }

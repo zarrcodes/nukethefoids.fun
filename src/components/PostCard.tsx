@@ -4,44 +4,33 @@ import type { Post } from '@/lib/mdx';
 
 interface PostCardProps {
   post: Post;
-  compact?: boolean;
 }
 
-export default function PostCard({ post, compact }: PostCardProps) {
+export default function PostCard({ post }: PostCardProps) {
   return (
-    <article className="card post-card border-0 bg-transparent" style={{ marginBottom: compact ? '1rem' : '2rem' }}>
-      {post.cover && (
-        <Link href={`/blog/${post.slug}`} className="text-decoration-none d-block" style={{ marginBottom: '0.75rem' }}>
-          <Image
-            src={post.cover}
-            alt={post.title}
-            width={720}
-            height={400}
-            sizes="(max-width: 720px) 100vw"
-            style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
-          />
-        </Link>
-      )}
-      <span className="text-muted" style={{ fontSize: '0.78rem' }}>
-        {new Date(post.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-      </span>
-      <h3 className={`fw-bold mt-1 ${compact ? 'h6 mb-1' : 'h4 mb-2'}`}>
-        <Link href={`/blog/${post.slug}`} className="text-decoration-none">
-          {post.title}
-        </Link>
-      </h3>
-      <p className="text-secondary mb-1" style={{ fontSize: compact ? '0.85rem' : '0.92rem', lineHeight: '1.6' }}>
-        {post.excerpt}
-      </p>
-      {!compact && post.tags.length > 0 && (
-        <div className="d-flex gap-2 flex-wrap mt-1">
-          {post.tags.map((tag) => (
-            <span key={tag} className="tag bg-secondary bg-opacity-10 text-secondary">
-              {tag}
-            </span>
-          ))}
+    <Link href={`/articles/${post.slug}`} className="text-decoration-none">
+      <article className="news-card">
+        {post.cover && (
+          <div className="news-card-image">
+            <Image
+              src={post.cover}
+              alt={post.title}
+              width={400}
+              height={250}
+              sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 25vw"
+              loading="lazy"
+              style={{ width: '100%', height: 'auto', display: 'block' }}
+            />
+          </div>
+        )}
+        <div className="news-card-body">
+          <time className="article-date" dateTime={post.date}>
+            {new Date(post.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+          </time>
+          <h3 className="news-card-title">{post.title}</h3>
+          <p className="news-card-excerpt">{post.excerpt}</p>
         </div>
-      )}
-    </article>
+      </article>
+    </Link>
   );
 }

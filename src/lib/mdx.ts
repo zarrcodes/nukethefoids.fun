@@ -59,6 +59,13 @@ export function getRawMDX(slug: string): string | null {
   return content;
 }
 
+export function getAllTags(): string[] {
+  const posts = getPosts();
+  const tagSet = new Set<string>();
+  posts.forEach((post) => post.tags.forEach((tag) => tagSet.add(tag)));
+  return Array.from(tagSet).sort();
+}
+
 export async function generateStaticParamsForPosts() {
   const posts = getPosts();
   return posts.map((post) => ({ slug: post.slug }));

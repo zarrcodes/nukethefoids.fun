@@ -1,39 +1,22 @@
-# NukeTheFoids.fun - Personal Blog
+# NukeTheFoids.fun
 
-Personal blog milik Abdurrazzaq Mohammad Ibrahim menggunakan Next.js App Router, Bootstrap, dan Local MDX.
+News and analysis blog. Built with Next.js App Router, Bootstrap, and Local MDX.
 
 ## Tech Stack
 
 - **Framework:** Next.js 16 (App Router, TypeScript)
-- **Styling:** Bootstrap 5.3 + Bootstrap Icons
+- **Styling:** Bootstrap 5.3 + Custom CSS
 - **CMS / Content:** Local MDX / Markdown (stored in `/content`)
 - **Hosting:** Vercel
 
 ## Project Structure
 
 ```
-content/          # Berisi file .mdx artikel blog
-src/app/          # Next.js App Router (pages, layout, metadata SEO, sitemap)
-src/components/   # Komponen UI terpisah (Navbar, Footer, PostCard, MDXContent)
-src/lib/          # Utility pembaca file MDX dan parser
-src/styles/       # Custom CSS / Overrides (globals.css)
-public/blog/      # Folder untuk menyimpan gambar cover & inline image
-```
-
-## Image Storage
-
-Semua gambar (cover, inline) disimpan di **`public/blog/`**. Referensi di frontmatter MDX:
-
-```yaml
----
-cover: "/blog/nama-file.jpg"
----
-```
-
-Di dalam artikel MDX:
-
-```markdown
-![Alt text](/blog/nama-file.jpg)
+content/          # MDX article files
+src/app/          # Next.js App Router (pages, layout, SEO)
+src/components/   # UI components (Navbar, Footer, PostCard)
+src/lib/          # MDX parser utilities
+public/           # Static assets (images, robots.txt, favicon)
 ```
 
 ## Development
@@ -42,22 +25,31 @@ Di dalam artikel MDX:
 npm run dev
 ```
 
-## Deploy on Vercel
-
-Proyek ini siap deploy di Vercel. Connect repository dan Vercel akan otomatis mendeteksi Next.js config.
-
-## Format Artikel MDX
-
-Setiap artikel harus menggunakan format frontmatter berikut:
+## Article Format
 
 ```yaml
 ---
-title: "Judul Artikel"
+title: "Article Title"
 date: "YYYY-MM-DD"
-excerpt: "Ringkasan singkat artikel 1-2 kalimat."
-tags: ["Teknologi", "Opini"]
-cover: "/blog/cover-filename.jpg"
+excerpt: "Brief summary."
+tags: ["Category"]
+cover: "/blog/cover.jpg"
 ---
 ```
 
-Tulis isi artikel menggunakan Markdown standar di bawah garis `---`.
+## SEO
+
+- Metadata API with OpenGraph and Twitter Cards
+- Canonical URLs on every page
+- Schema.org structured data (WebSite, NewsArticle, CollectionPage, AboutPage)
+- Dynamic sitemap at `/sitemap.xml`
+- RSS feed at `/rss.xml`
+- robots.txt
+
+## Security
+
+Security headers configured in `next.config.ts`:
+- HSTS, X-Content-Type-Options, X-Frame-Options
+- X-XSS-Protection, Referrer-Policy
+- Permissions-Policy, X-DNS-Prefetch-Control
+- poweredByHeader disabled

@@ -11,28 +11,42 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # Agent Context & Rules - NukeTheFoids.fun
 
 ## Project Overview
-This is a clean, minimal, and ultra-fast personal blog built for **Abdurrazzaq Mohammad Ibrahim**.
-- **Domain/Brand:** NukeTheFoids.fun
-- **Language:** Indonesian (Bahasa Indonesia)
+News and analysis blog. Built for **NukeTheFoids.fun**.
+- **Brand:** NukeTheFoids.fun
+- **Language:** English
 
 ## Tech Stack
 - **Framework:** Next.js (App Router, TypeScript)
-- **Styling:** Bootstrap (Custom CSS variables, Monochrome Dark/Light mode)
+- **Styling:** Bootstrap (Custom CSS, White theme with black accents)
 - **CMS / Content:** Local MDX / Markdown (stored in `/content`)
 - **Icons:** Bootstrap Icons
 
 ## UI/UX Guidelines
-1. **Monochrome Theme:** Pure white/black high-contrast design. No heavy accent colors.
-2. **Typography & Readability:** Max width `720px` for text containers, comfortable line-height for long reading.
-3. **Component Architecture:** Keep code modular. UI elements must go into `src/components/`, pages in `src/app/`.
+1. **Theme:** Pure white background, black accents. No dark mode.
+2. **Typography:** Sans-serif, clean, BBC-style news layout.
+3. **Component Architecture:** Modular. UI in `src/components/`, pages in `src/app/`.
 
 ## SEO Requirements
-- Every page/post must maintain 100% SEO optimization.
-- Always implement Next.js `metadata` API, OpenGraph tags, dynamic sitemap compatibility, and Schema.org structured data where applicable.
+- Every page/post must have 100% SEO optimization.
+- Always implement Next.js `metadata` API, OpenGraph tags, canonical URLs, structured data (Schema.org).
+- Every page needs: title, description, canonical URL, OpenGraph, Twitter Card.
+- Every article needs: NewsArticle schema, author, publisher, datePublished, dateModified.
+- Sitemap at `/sitemap.xml`, RSS feed at `/rss.xml`.
+
+## Security Headers
+Configured in `next.config.ts`:
+- Strict-Transport-Security (HSTS)
+- X-Content-Type-Options: nosniff
+- X-Frame-Options: SAMEORIGIN
+- X-XSS-Protection: 1; mode=block
+- Referrer-Policy: strict-origin-when-cross-origin
+- Permissions-Policy: restricted
+- X-DNS-Prefetch-Control: on
+- poweredByHeader: false
 
 ## Rules for AI Agent
 - Do NOT use Tailwind CSS. Only use Bootstrap classes or native CSS in `globals.css`.
-- Always respond in Bahasa Indonesia when explaining concepts or code changes.
+- Always respond in English when explaining concepts or code changes.
 - Keep dependencies as minimal as possible.
-
-
+- All text must be in English.
+- Always use semantic HTML (article, nav, main, header, footer, time, etc.).
