@@ -558,17 +558,68 @@ async function uploadImage(base64Data, filename) {
   return `/blog/${filename}`;
 }
 
+// ===== Image Compression =====
+function autoCompressImage(file, maxWidth, maxHeight, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width;
+        let h = img.height;
+
+        if (w > maxWidth) {
+          h = Math.round(h * maxWidth / w);
+          w = maxWidth;
+        }
+        if (h > maxHeight) {
+          w = Math.round(w * maxHeight / h);
+          h = maxHeight;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+
+        canvas.toBlob((blob) => {
+          if (!blob) { reject(new Error('Compression failed')); return; }
+          const reader2 = new FileReader();
+          reader2.onload = () => {
+            const base64 = reader2.result.split(',')[1];
+            const sizeKB = Math.round(blob.size / 1024);
+            resolve({ base64, width: w, height: h, sizeKB, type: blob.type });
+          };
+          reader2.readAsDataURL(blob);
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function formatSize(kb) {
+  return kb >= 1024 ? (kb / 1024).toFixed(1) + 'MB' : kb + 'KB';
+}
+
 function handleCoverUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
-  const ext = file.name.split('.').pop();
+  const ext = 'jpg';
   coverFilename = `cover-${getSlug()}-${Date.now()}.${ext}`;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    coverBase64 = ev.target.result.split(',')[1];
-    document.getElementById('cover-preview').innerHTML = `<img src="${ev.target.result}" alt="Cover">`;
-  };
-  reader.readAsDataURL(file);
+  showToast('Compressing image...');
+  autoCompressImage(file, 1200, 630, 0.82).then((result) => {
+    coverBase64 = result.base64;
+    const displayUrl = `data:image/jpeg;base64,${result.base64}`;
+    document.getElementById('cover-preview').innerHTML = `<img src="${displayUrl}" alt="Cover">`;
+    showToast(`Compressed: ${formatSize(result.sizeKB)} (${result.width}x${result.height})`, 'success');
+  }).catch((err) => {
+    showToast('Compression failed: ' + err.message, 'error');
+  });
   e.target.value = '';
 }
 
@@ -586,22 +637,19 @@ function triggerInlineImage() {
 async function handleInlineImage(e) {
   const file = e.target.files[0];
   if (!file) return;
-  const ext = file.name.split('.').pop();
+  const ext = 'jpg';
   const filename = `inline-${getSlug()}-${Date.now()}.${ext}`;
 
-  showToast('Uploading image...');
-  const reader = new FileReader();
-  reader.onload = async (ev) => {
-    try {
-      const base64 = ev.target.result.split(',')[1];
-      await uploadImage(base64, filename);
-      insertFormat('img', `/blog/${filename}`);
-      showToast('Image uploaded!', 'success');
-    } catch(err) {
-      showToast('Failed to upload image: ' + err.message, 'error');
-    }
-  };
-  reader.readAsDataURL(file);
+  showToast('Compressing image...');
+  try {
+    const result = await autoCompressImage(file, 1200, 800, 0.80);
+    showToast(`Uploading ${formatSize(result.sizeKB)}...`);
+    await uploadImage(result.base64, filename);
+    insertFormat('img', `/blog/${filename}`);
+    showToast('Image uploaded!', 'success');
+  } catch(err) {
+    showToast('Failed: ' + err.message, 'error');
+  }
   e.target.value = '';
 }
 
