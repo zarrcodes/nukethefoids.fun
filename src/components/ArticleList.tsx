@@ -58,16 +58,16 @@ export default function ArticleList({ posts, tags }: ArticleListProps) {
         <input
           type="text"
           className="articles-search-input"
-          placeholder="Search topics or keywords..."
+          placeholder="Cari topik atau kata kunci..."
           value={search}
           onChange={(e) => handleSearchChange(e.target.value)}
-          aria-label="Search articles"
+          aria-label="Cari postingan blog"
         />
         {search && (
           <button
             className="articles-search-clear"
             onClick={() => handleSearchChange('')}
-            aria-label="Clear search"
+            aria-label="Hapus pencarian"
           >
             <i className="bi bi-x" />
           </button>
@@ -81,7 +81,7 @@ export default function ArticleList({ posts, tags }: ArticleListProps) {
             className={`articles-tag ${activeTag === null ? 'active' : ''}`}
             onClick={() => { setActiveTag(null); setPage(1); }}
           >
-            All
+            Semua
           </button>
           {tags.map((tag) => (
             <button
@@ -97,16 +97,16 @@ export default function ArticleList({ posts, tags }: ArticleListProps) {
 
       {/* Results Count */}
       <div className="articles-count">
-        {filtered.length} article{filtered.length !== 1 ? 's' : ''}
-        {activeTag && <> in <strong>{activeTag}</strong></>}
-        {search && <> matching &ldquo;{search}&rdquo;</>}
+        {filtered.length} postingan
+        {activeTag && <> dalam <strong>{activeTag}</strong></>}
+        {search && <> yang cocok dengan &ldquo;{search}&rdquo;</>}
       </div>
 
       {/* Articles Grid */}
       {paginated.length > 0 ? (
         <div className="news-grid">
           {paginated.map((post) => (
-            <Link key={post.slug} href={`/articles/${post.slug}`} className="text-decoration-none">
+            <Link key={post.slug} href={`/blog/${post.slug}`} className="text-decoration-none">
               <article className="news-card">
                 {post.cover && (
                   <div className="news-card-image">
@@ -124,7 +124,7 @@ export default function ArticleList({ posts, tags }: ArticleListProps) {
                 <div className="news-card-body">
                   <div className="news-card-meta">
                     <time className="article-date" dateTime={post.date}>
-                      {new Date(post.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      {new Date(post.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </time>
                     {post.tags.length > 0 && (
                       <span className="news-card-tag">{post.tags[0]}</span>
@@ -139,18 +139,18 @@ export default function ArticleList({ posts, tags }: ArticleListProps) {
         </div>
       ) : (
         <div className="empty-state">
-          <p>No articles found.</p>
+          <p>Tidak ada postingan ditemukan.</p>
         </div>
       )}
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <nav className="articles-pagination" aria-label="Pagination">
+        <nav className="articles-pagination" aria-label="Navigasi halaman">
           <button
             className="pagination-btn"
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
-            aria-label="Previous page"
+            aria-label="Halaman sebelumnya"
           >
             <i className="bi bi-chevron-left" />
           </button>
@@ -160,7 +160,7 @@ export default function ArticleList({ posts, tags }: ArticleListProps) {
               key={p}
               className={`pagination-btn ${p === page ? 'active' : ''}`}
               onClick={() => setPage(p)}
-              aria-label={`Page ${p}`}
+              aria-label={`Halaman ${p}`}
               aria-current={p === page ? 'page' : undefined}
             >
               {p}
@@ -171,7 +171,7 @@ export default function ArticleList({ posts, tags }: ArticleListProps) {
             className="pagination-btn"
             disabled={page === totalPages}
             onClick={() => setPage(page + 1)}
-            aria-label="Next page"
+            aria-label="Halaman berikutnya"
           >
             <i className="bi bi-chevron-right" />
           </button>

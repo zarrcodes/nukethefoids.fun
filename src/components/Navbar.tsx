@@ -10,9 +10,9 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
-    { name: 'Home', path: '/' },
-    { name: 'Articles', path: '/articles' },
-    { name: 'About', path: '/about' },
+    { name: 'Beranda', path: '/' },
+    { name: 'Blog', path: '/blog' },
+    { name: 'Tentang', path: '/about' },
   ];
 
   // Close the mobile menu with the Escape key
@@ -28,7 +28,7 @@ export default function Navbar() {
   return (
     <header className="site-header" role="banner">
       <div className="header-inner">
-        <Link href="/" className="header-brand" aria-label="NukeTheFoids.fun - Home" onClick={() => setMenuOpen(false)}>
+        <Link href="/" className="header-brand" aria-label="NukeTheFoids.fun - Beranda" onClick={() => setMenuOpen(false)}>
           <Image
             src="/logo.png"
             alt="NukeTheFoids.fun logo"
@@ -47,7 +47,7 @@ export default function Navbar() {
           className="header-menu-toggle"
           aria-expanded={menuOpen}
           aria-controls="main-navigation"
-          aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-label={menuOpen ? 'Tutup menu navigasi' : 'Buka menu navigasi'}
           onClick={() => setMenuOpen((v) => !v)}
         >
           <span aria-hidden="true" />
@@ -58,7 +58,7 @@ export default function Navbar() {
           id="main-navigation"
           className={`header-nav${menuOpen ? ' open' : ''}`}
           role="navigation"
-          aria-label="Main navigation"
+          aria-label="Navigasi utama"
         >
           {navItems.map((item) => (
             <Link

@@ -13,7 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: `${baseUrl}/articles`,
+      url: `${baseUrl}/blog`,
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 0.9,
@@ -27,10 +27,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
 
   const postPages = posts.map((post) => ({
-    url: `${baseUrl}/articles/${post.slug}`,
+    url: `${baseUrl}/blog/${post.slug}`,
     lastModified: post.date ? new Date(post.date) : new Date(),
     changeFrequency: 'monthly' as const,
     priority: 0.8,
+    images: post.cover
+      ? [post.cover.startsWith('http') ? post.cover : `${baseUrl}${post.cover}`]
+      : undefined,
   }));
 
   return [...staticPages, ...postPages];

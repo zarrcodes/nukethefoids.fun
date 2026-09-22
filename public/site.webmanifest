@@ -1,17 +1,18 @@
 {
-  "name": "NukeTheFoids.fun - News & Analysis",
+  "name": "NukeTheFoids.fun - Berita & Analisis",
   "short_name": "NukeTheFoids",
-  "description": "In-depth news coverage, analysis, and commentary on current events, technology, and culture.",
+  "description": "Berita mendalam, analisis tajam, dan komentar tentang peristiwa terkini, teknologi, dan budaya dalam Bahasa Indonesia.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
-  "lang": "en",
+  "lang": "id",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/logo.png",
-      "sizes": "512x512",
+      "sizes": "1254x1254",
       "type": "image/png",
       "purpose": "any"
     },

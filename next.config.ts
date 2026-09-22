@@ -44,6 +44,20 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/articles',
+        destination: '/blog',
+        permanent: true,
+      },
+      {
+        source: '/articles/:slug',
+        destination: '/blog/:slug',
+        permanent: true,
+      },
+    ];
+  },
   poweredByHeader: false,
   reactStrictMode: true,
   images: {

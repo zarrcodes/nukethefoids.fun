@@ -7,47 +7,48 @@ import './globals.css';
 
 const SITE_URL = 'https://nukethefoids.fun';
 const LOGO_URL = `${SITE_URL}/logo.png`;
-const LOGO_SIZE = 512;
+const LOGO_WIDTH = 1254;
+const LOGO_HEIGHT = 1254;
 const SITE_NAME = 'NukeTheFoids.fun';
 const SITE_DESCRIPTION =
-  'NukeTheFoids.fun delivers in-depth news coverage, analysis, and commentary on current events, technology, and culture.';
+  'NukeTheFoids.fun menyajikan berita mendalam, analisis tajam, dan komentar tentang peristiwa terkini, teknologi, dan budaya dalam Bahasa Indonesia.';
+const SITE_TAGLINE = 'Berita mendalam, analisis tajam, dan komentar tanpa basa-basi.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'NukeTheFoids.fun - News & Analysis',
+    default: 'NukeTheFoids.fun - Berita & Analisis',
     template: '%s | NukeTheFoids.fun',
   },
   description: SITE_DESCRIPTION,
-  keywords: ['news', 'analysis', 'commentary', 'technology', 'culture', 'current events'],
+  keywords: ['berita', 'analisis', 'komentar', 'teknologi', 'budaya', 'peristiwa terkini', 'blog indonesia', 'berita indonesia'],
   authors: [{ name: SITE_NAME, url: SITE_URL }],
   creator: SITE_NAME,
   publisher: SITE_NAME,
+  category: 'berita',
   icons: {
     icon: [
-      { url: '/logo.png', sizes: '512x512', type: 'image/png' },
+      { url: '/logo.png', sizes: '1254x1254', type: 'image/png' },
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon.svg', type: 'image/svg+xml' },
     ],
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
     shortcut: ['/favicon.ico'],
   },
   manifest: '/site.webmanifest',
   openGraph: {
-    title: 'NukeTheFoids.fun - News & Analysis',
-    description:
-      'In-depth news coverage, analysis, and commentary on current events, technology, and culture.',
+    title: 'NukeTheFoids.fun - Berita & Analisis',
+    description: SITE_TAGLINE,
     url: SITE_URL,
     siteName: SITE_NAME,
-    locale: 'en_US',
+    locale: 'id_ID',
     type: 'website',
     images: [
       {
         url: LOGO_URL,
-        width: LOGO_SIZE,
-        height: LOGO_SIZE,
-        alt: `${SITE_NAME} logo`,
+        width: LOGO_WIDTH,
+        height: LOGO_HEIGHT,
+        alt: `Logo ${SITE_NAME}`,
         type: 'image/png',
       },
     ],
@@ -56,9 +57,8 @@ export const metadata: Metadata = {
     card: 'summary',
     site: '@nukethefoids',
     creator: '@nukethefoids',
-    title: 'NukeTheFoids.fun - News & Analysis',
-    description:
-      'In-depth news coverage, analysis, and commentary on current events, technology, and culture.',
+    title: 'NukeTheFoids.fun - Berita & Analisis',
+    description: SITE_TAGLINE,
     images: [LOGO_URL],
   },
   robots: {
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
     types: {
       'application/rss+xml': [
-        { url: '/rss.xml', title: 'NukeTheFoids.fun RSS Feed' },
+        { url: '/rss.xml', title: 'Feed RSS NukeTheFoids.fun' },
       ],
     },
   },
@@ -104,15 +104,15 @@ const organizationSchema = {
     '@id': `${LOGO_URL}#logo`,
     url: LOGO_URL,
     contentUrl: LOGO_URL,
-    width: LOGO_SIZE,
-    height: LOGO_SIZE,
-    caption: `${SITE_NAME} logo`,
+    width: LOGO_WIDTH,
+    height: LOGO_HEIGHT,
+    caption: `Logo ${SITE_NAME}`,
   },
   image: {
     '@type': 'ImageObject',
     url: LOGO_URL,
-    width: LOGO_SIZE,
-    height: LOGO_SIZE,
+    width: LOGO_WIDTH,
+    height: LOGO_HEIGHT,
   },
 };
 
@@ -122,13 +122,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" data-bs-theme="light">
+    <html lang="id" data-bs-theme="light">
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
         <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png" />
-        <link rel="icon" href="/logo.png" sizes="512x512" type="image/png" />
+        <link rel="icon" href="/logo.png" sizes="1254x1254" type="image/png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
         <link rel="logo" type="image/png" href="/logo.png" />

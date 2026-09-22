@@ -30,7 +30,7 @@ export default function CusdisComments({ pageId, pageUrl, pageTitle }: CusdisCom
 
   return (
     <section className="comments-section">
-      <h2 className="comments-title">Discussion</h2>
+      <h2 className="comments-title">Diskusi</h2>
       <div
         id="cusdis_thread"
         data-host="https://cusdis.com"

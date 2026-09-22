@@ -8,7 +8,7 @@ interface PostCardProps {
 
 export default function PostCard({ post }: PostCardProps) {
   return (
-    <Link href={`/articles/${post.slug}`} className="text-decoration-none">
+    <Link href={`/blog/${post.slug}`} className="text-decoration-none">
       <article className="news-card">
         {post.cover && (
           <div className="news-card-image">
@@ -25,7 +25,7 @@ export default function PostCard({ post }: PostCardProps) {
         )}
         <div className="news-card-body">
           <time className="article-date" dateTime={post.date}>
-            {new Date(post.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+            {new Date(post.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
           </time>
           <h3 className="news-card-title">{post.title}</h3>
           <p className="news-card-excerpt">{post.excerpt}</p>

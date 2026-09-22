@@ -7,13 +7,17 @@ import Link from 'next/link';
 import ScrollToTop from '@/components/ScrollToTop';
 import CusdisComments from '@/components/CusdisComments';
 
+const SITE_URL = 'https://nukethefoids.fun';
+const LOGO_URL = `${SITE_URL}/logo.png`;
+const SITE_NAME = 'NukeTheFoids.fun';
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
 function createMDXComponents() {
   return {
-    img({ src, alt, ...props }: { src: string; alt?: string; [key: string]: any }) {
+    img({ src, alt }: { src: string; alt?: string }) {
       if (!src) return null;
       return (
         <Image
@@ -37,38 +41,54 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = getPostBySlug(slug);
-  if (!post) return { title: 'Article Not Found' };
+  if (!post) return { title: 'Postingan Tidak Ditemukan' };
 
-  const url = `https://nukethefoids.fun/articles/${post.slug}`;
+  const url = `${SITE_URL}/blog/${post.slug}`;
+  const coverUrl = post.cover
+    ? post.cover.startsWith('http')
+      ? post.cover
+      : `${SITE_URL}${post.cover}`
+    : undefined;
   return {
     title: post.title,
     description: post.excerpt,
     keywords: post.tags,
-    authors: [{ name: 'NukeTheFoids.fun' }],
+    authors: [{ name: SITE_NAME }],
     openGraph: {
       title: post.title,
       description: post.excerpt,
       url,
-      siteName: 'NukeTheFoids.fun',
-      locale: 'en_US',
+      siteName: SITE_NAME,
+      locale: 'id_ID',
       type: 'article',
       publishedTime: post.date,
       modifiedTime: post.date,
-      authors: ['NukeTheFoids.fun'],
-      images: post.cover ? [
-        {
-          url: post.cover.startsWith('http') ? post.cover : `https://nukethefoids.fun${post.cover}`,
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-      ] : [],
+      authors: [SITE_NAME],
+      tags: post.tags,
+      images: coverUrl
+        ? [
+            {
+              url: coverUrl,
+              width: 1200,
+              height: 630,
+              alt: post.title,
+            },
+          ]
+        : [
+            {
+              url: LOGO_URL,
+              width: 1254,
+              height: 1254,
+              alt: `Logo ${SITE_NAME}`,
+              type: 'image/png',
+            },
+          ],
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
       description: post.excerpt,
-      images: post.cover ? [post.cover.startsWith('http') ? post.cover : `https://nukethefoids.fun${post.cover}`] : [],
+      images: coverUrl ? [coverUrl] : [LOGO_URL],
     },
     alternates: {
       canonical: url,
@@ -87,7 +107,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function ArticlePage({ params }: Props) {
+export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const raw = getRawMDX(slug);
   if (!raw) {
@@ -95,40 +115,74 @@ export default async function ArticlePage({ params }: Props) {
   }
 
   const post = getPostBySlug(slug);
+  const url = `${SITE_URL}/blog/${slug}`;
+  const coverUrl =
+    post?.cover && post.cover.startsWith('http')
+      ? post.cover
+      : post?.cover
+        ? `${SITE_URL}${post.cover}`
+        : undefined;
 
   const schema = {
     '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
+    '@type': 'BlogPosting',
     headline: post?.title || slug,
     description: post?.excerpt || '',
     datePublished: post?.date || '',
     dateModified: post?.date || '',
+    inLanguage: 'id',
     author: {
       '@type': 'Organization',
-      name: 'NukeTheFoids.fun',
-      url: 'https://nukethefoids.fun',
+      '@id': `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      url: SITE_URL,
     },
     publisher: {
       '@type': 'Organization',
-      '@id': 'https://nukethefoids.fun/#organization',
-      name: 'NukeTheFoids.fun',
-      url: 'https://nukethefoids.fun',
+      '@id': `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      url: SITE_URL,
       logo: {
         '@type': 'ImageObject',
-        url: 'https://nukethefoids.fun/logo.png',
-        contentUrl: 'https://nukethefoids.fun/logo.png',
-        width: 512,
-        height: 512,
-        caption: 'NukeTheFoids.fun logo',
+        url: LOGO_URL,
+        contentUrl: LOGO_URL,
+        width: 1254,
+        height: 1254,
+        caption: `Logo ${SITE_NAME}`,
       },
-      image: 'https://nukethefoids.fun/logo.png',
+      image: LOGO_URL,
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://nukethefoids.fun/articles/${slug}`,
+      '@id': url,
     },
-    image: post?.cover ? (post.cover.startsWith('http') ? post.cover : `https://nukethefoids.fun${post.cover}`) : undefined,
+    image: coverUrl,
     wordCount: raw.split(/\s+/).length,
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Beranda',
+        item: SITE_URL,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Blog',
+        item: `${SITE_URL}/blog`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: post?.title || slug,
+        item: url,
+      },
+    ],
   };
 
   return (
@@ -138,7 +192,11 @@ export default async function ArticlePage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
-      <article className="article-page" itemScope itemType="https://schema.org/NewsArticle">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <article className="article-page" itemScope itemType="https://schema.org/BlogPosting">
         {post?.cover && (
           <div className="article-cover">
             <Image
@@ -154,17 +212,17 @@ export default async function ArticlePage({ params }: Props) {
         )}
         <div className="container" style={{ maxWidth: '720px', padding: '2rem 1rem' }}>
           <nav aria-label="Breadcrumb" className="breadcrumb-nav">
-            <Link href="/" className="breadcrumb-link">Home</Link>
+            <Link href="/" className="breadcrumb-link">Beranda</Link>
             <span className="breadcrumb-sep" aria-hidden="true">/</span>
-            <Link href="/articles" className="breadcrumb-link">Articles</Link>
+            <Link href="/blog" className="breadcrumb-link">Blog</Link>
             <span className="breadcrumb-sep" aria-hidden="true">/</span>
             <span className="breadcrumb-current" aria-current="page">{post?.title}</span>
           </nav>
-          <Link href="/articles" className="back-link">
-            <i className="bi bi-arrow-left me-1" /> Back to Articles
+          <Link href="/blog" className="back-link">
+            <i className="bi bi-arrow-left me-1" /> Kembali ke Blog
           </Link>
           <time className="article-date" dateTime={post?.date} style={{ display: 'block', marginTop: '1rem' }} itemProp="datePublished">
-            {post?.date && new Date(post.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+            {post?.date && new Date(post.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
           </time>
           <h1 className="article-title" itemProp="headline">{post?.title}</h1>
           <div className="article-content" itemProp="articleBody">
@@ -172,7 +230,7 @@ export default async function ArticlePage({ params }: Props) {
           </div>
           <CusdisComments
             pageId={slug}
-            pageUrl={`https://nukethefoids.fun/articles/${slug}`}
+            pageUrl={url}
             pageTitle={post?.title || slug}
           />
         </div>

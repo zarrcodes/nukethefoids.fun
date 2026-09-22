@@ -1,20 +1,22 @@
+import { getPosts, getAllTags } from '@/lib/mdx';
 import { Metadata } from 'next';
+import ArticleList from '@/components/ArticleList';
 
 const SITE_URL = 'https://nukethefoids.fun';
 const LOGO_URL = `${SITE_URL}/logo.png`;
 const SITE_NAME = 'NukeTheFoids.fun';
-const PAGE_URL = `${SITE_URL}/about`;
+const PAGE_URL = `${SITE_URL}/blog`;
 const PAGE_DESCRIPTION =
-  'Kenali lebih dekat NukeTheFoids.fun - misi kami dan tim di balik liputan berita serta analisis.';
+  'Baca postingan blog terbaru dari NukeTheFoids.fun: berita, analisis, dan komentar tentang peristiwa terkini, teknologi, dan budaya.';
 
 export const metadata: Metadata = {
-  title: 'Tentang',
+  title: 'Blog',
   description: PAGE_DESCRIPTION,
   alternates: {
     canonical: PAGE_URL,
   },
   openGraph: {
-    title: `Tentang | ${SITE_NAME}`,
+    title: `Blog | ${SITE_NAME}`,
     description: PAGE_DESCRIPTION,
     url: PAGE_URL,
     siteName: SITE_NAME,
@@ -32,22 +34,25 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary',
-    title: `Tentang | ${SITE_NAME}`,
+    title: `Blog | ${SITE_NAME}`,
     description: PAGE_DESCRIPTION,
     images: [LOGO_URL],
   },
 };
 
-export default function AboutPage() {
+export default function BlogPage() {
+  const posts = getPosts();
+  const tags = getAllTags();
+
   const schema = {
     '@context': 'https://schema.org',
-    '@type': 'AboutPage',
-    '@id': `${PAGE_URL}#page`,
-    name: `Tentang ${SITE_NAME}`,
+    '@type': 'Blog',
+    '@id': `${PAGE_URL}#blog`,
+    name: `Blog ${SITE_NAME}`,
     description: PAGE_DESCRIPTION,
     url: PAGE_URL,
     inLanguage: 'id',
-    mainEntity: {
+    publisher: {
       '@type': 'Organization',
       '@id': `${SITE_URL}/#organization`,
       name: SITE_NAME,
@@ -62,6 +67,18 @@ export default function AboutPage() {
       },
       image: LOGO_URL,
     },
+    blogPost: posts.map((post) => ({
+      '@type': 'BlogPosting',
+      headline: post.title,
+      description: post.excerpt,
+      url: `${SITE_URL}/blog/${post.slug}`,
+      datePublished: post.date,
+      image: post.cover
+        ? post.cover.startsWith('http')
+          ? post.cover
+          : `${SITE_URL}${post.cover}`
+        : undefined,
+    })),
   };
 
   return (
@@ -70,19 +87,10 @@ export default function AboutPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
-      <div className="container" style={{ maxWidth: '720px', padding: '2rem 1rem' }}>
-        <h1 className="page-title">Tentang</h1>
-        <div className="page-content">
-          <p>
-            NukeTheFoids.fun adalah platform independen yang menyajikan berita,
-            analisis, dan komentar tentang budaya internet, masyarakat modern,
-            dan isu-isu terkini dalam Bahasa Indonesia.
-          </p>
-          <p>
-            Misi kami sederhana: menghadirkan liputan yang jujur, tajam, dan
-            mudah dipahami — tanpa basa-basi.
-          </p>
-        </div>
+      <div className="container" style={{ maxWidth: '1100px', padding: '2rem 1rem' }}>
+        <h1 className="page-title">Blog</h1>
+        <p className="page-subtitle">Semua tulisan dari NukeTheFoids.fun</p>
+        <ArticleList posts={posts} tags={tags} />
       </div>
     </>
   );
