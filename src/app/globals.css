@@ -82,6 +82,98 @@ a { color: inherit; }
   border-bottom-color: #000;
 }
 
+/* ===== Hamburger (mobile only) ===== */
+.header-menu-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.header-menu-toggle:hover {
+  border-color: #000;
+}
+
+.header-menu-toggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: #000;
+  border-radius: 1px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+/* Animate hamburger into an X when open */
+.header-menu-toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.header-menu-toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+
+.header-menu-toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ===== Mobile nav (dropdown panel) ===== */
+@media (max-width: 640px) {
+  .header-inner {
+    position: relative;
+  }
+
+  .header-menu-toggle {
+    display: inline-flex;
+  }
+
+  .header-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    padding: 0.5rem 1rem 0.75rem;
+    z-index: 99;
+  }
+
+  .header-nav.open {
+    display: flex;
+  }
+
+  .header-nav a {
+    font-size: 1rem;
+    padding: 0.7rem 0.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-nav a:last-child {
+    border-bottom: none;
+  }
+
+  .header-nav a:hover,
+  .header-nav a.active {
+    border-bottom-color: var(--border);
+  }
+
+  .header-nav a.active {
+    font-weight: 700;
+  }
+}
+
 /* ===== Hero ===== */
 .hero-section {
   border-bottom: 1px solid var(--border);
@@ -178,6 +270,10 @@ a { color: inherit; }
   .hero-brand { font-size: 1.8rem; }
   .news-grid { grid-template-columns: 1fr; }
   .featured-title { font-size: 1.4rem; }
+  .article-title { font-size: 1.5rem; }
+  .header-brand { font-size: 1.05rem; gap: 0.5rem; }
+  .header-brand-logo { width: 32px; height: 32px; }
+  .footer-inner { flex-wrap: wrap; gap: 0.35rem; }
 }
 
 /* ===== News Card ===== */
