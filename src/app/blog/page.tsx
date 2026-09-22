@@ -7,7 +7,7 @@ const LOGO_URL = `${SITE_URL}/logo.png`;
 const SITE_NAME = 'NukeTheFoids.fun';
 const PAGE_URL = `${SITE_URL}/blog`;
 const PAGE_DESCRIPTION =
-  'Baca postingan blog terbaru dari NukeTheFoids.fun: berita, analisis, dan komentar tentang peristiwa terkini, teknologi, dan budaya.';
+  'Baca semua tulisan di blog NukeTheFoids.fun — opini pribadi yang aneh, tidak kredibel, dan kadang tidak bersumber. Source: trust me.';
 
 export const metadata: Metadata = {
   title: 'Blog',

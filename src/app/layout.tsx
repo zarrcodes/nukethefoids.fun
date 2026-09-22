@@ -11,8 +11,8 @@ const LOGO_WIDTH = 1254;
 const LOGO_HEIGHT = 1254;
 const SITE_NAME = 'NukeTheFoids.fun';
 const SITE_DESCRIPTION =
-  'NukeTheFoids.fun menyajikan berita mendalam, analisis tajam, dan komentar tentang peristiwa terkini, teknologi, dan budaya dalam Bahasa Indonesia.';
-const SITE_TAGLINE = 'Berita mendalam, analisis tajam, dan komentar tanpa basa-basi.';
+  'NukeTheFoids.fun dibuat untuk menyalurkan isi pikiran saya. Semua yang kalian baca di website ini berdasarkan pemikiran sendiri, bukan dari data/sumber yang kredibel, dan kadang tidak bersumber. Harap maklum. Source: trust me.';
+const SITE_TAGLINE = 'Web aneh, tidak kredibel, source : trust me.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

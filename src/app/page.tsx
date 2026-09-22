@@ -7,7 +7,7 @@ const SITE_URL = 'https://nukethefoids.fun';
 const LOGO_URL = `${SITE_URL}/logo.png`;
 const SITE_NAME = 'NukeTheFoids.fun';
 const SITE_DESCRIPTION =
-  'NukeTheFoids.fun menyajikan berita mendalam, analisis tajam, dan komentar tentang peristiwa terkini, teknologi, dan budaya dalam Bahasa Indonesia.';
+  'NukeTheFoids.fun dibuat untuk menyalurkan isi pikiran saya. Semua yang kalian baca di website ini berdasarkan pemikiran sendiri, bukan dari data/sumber yang kredibel, dan kadang tidak bersumber. Harap maklum. Source: trust me.';
 
 export const metadata: Metadata = {
   title: 'Beranda',
@@ -87,7 +87,7 @@ export default function HomePage() {
       <section className="hero-section">
         <div className="container" style={{ maxWidth: '1100px' }}>
           <h1 className="hero-brand">NukeTheFoids.fun</h1>
-          <p className="hero-tagline">Berita mendalam, analisis tajam, dan komentar tanpa basa-basi.</p>
+          <p className="hero-tagline">Web aneh, tidak kredibel, source : trust me.</p>
         </div>
       </section>
 

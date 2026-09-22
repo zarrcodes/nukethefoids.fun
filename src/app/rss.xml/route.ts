@@ -23,7 +23,7 @@ export async function GET() {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>NukeTheFoids.fun - Berita &amp; Analisis</title>
-    <description>Berita, analisis, dan komentar terbaru dari NukeTheFoids.fun</description>
+    <description>Tulisan-tulisan dari NukeTheFoids.fun — tidak kredibel, kadang tidak bersumber. Source: trust me.</description>
     <link>${baseUrl}</link>
     <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml" />
     <language>id</language>

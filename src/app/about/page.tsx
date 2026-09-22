@@ -5,7 +5,7 @@ const LOGO_URL = `${SITE_URL}/logo.png`;
 const SITE_NAME = 'NukeTheFoids.fun';
 const PAGE_URL = `${SITE_URL}/about`;
 const PAGE_DESCRIPTION =
-  'Kenali lebih dekat NukeTheFoids.fun - misi kami dan tim di balik liputan berita serta analisis.';
+  'NukeTheFoids.fun dibuat untuk menyalurkan isi pikiran saya — tidak kredibel, kadang tidak bersumber. Harap maklum. Source: trust me.';
 
 export const metadata: Metadata = {
   title: 'Tentang',
@@ -74,13 +74,13 @@ export default function AboutPage() {
         <h1 className="page-title">Tentang</h1>
         <div className="page-content">
           <p>
-            NukeTheFoids.fun adalah platform independen yang menyajikan berita,
-            analisis, dan komentar tentang budaya internet, masyarakat modern,
-            dan isu-isu terkini dalam Bahasa Indonesia.
+            NukeTheFoids.fun dibuat untuk menyalurkan isi pikiran saya.
+            Tentunya poin-poin atau hal yang kalian baca di website ini
+            berdasarkan pemikiran sendiri, dan bukan dari data/sumber yang
+            kredibel, dan kadang tidak bersumber. Harap maklum.
           </p>
           <p>
-            Misi kami sederhana: menghadirkan liputan yang jujur, tajam, dan
-            mudah dipahami — tanpa basa-basi.
+            Source : trust me.
           </p>
         </div>
       </div>
