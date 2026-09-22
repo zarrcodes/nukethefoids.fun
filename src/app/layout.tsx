@@ -1,44 +1,65 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './globals.css';
 
+const SITE_URL = 'https://nukethefoids.fun';
+const LOGO_URL = `${SITE_URL}/logo.png`;
+const LOGO_SIZE = 512;
+const SITE_NAME = 'NukeTheFoids.fun';
+const SITE_DESCRIPTION =
+  'NukeTheFoids.fun delivers in-depth news coverage, analysis, and commentary on current events, technology, and culture.';
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://nukethefoids.fun'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'NukeTheFoids.fun - News & Analysis',
     template: '%s | NukeTheFoids.fun',
   },
-  description: 'NukeTheFoids.fun delivers in-depth news coverage, analysis, and commentary on current events, technology, and culture.',
+  description: SITE_DESCRIPTION,
   keywords: ['news', 'analysis', 'commentary', 'technology', 'culture', 'current events'],
-  authors: [{ name: 'NukeTheFoids.fun' }],
-  creator: 'NukeTheFoids.fun',
-  publisher: 'NukeTheFoids.fun',
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  icons: {
+    icon: [
+      { url: '/logo.png', sizes: '512x512', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    shortcut: ['/favicon.ico'],
+  },
+  manifest: '/site.webmanifest',
   openGraph: {
     title: 'NukeTheFoids.fun - News & Analysis',
-    description: 'In-depth news coverage, analysis, and commentary on current events, technology, and culture.',
-    url: 'https://nukethefoids.fun',
-    siteName: 'NukeTheFoids.fun',
+    description:
+      'In-depth news coverage, analysis, and commentary on current events, technology, and culture.',
+    url: SITE_URL,
+    siteName: SITE_NAME,
     locale: 'en_US',
     type: 'website',
     images: [
       {
-        url: 'https://nukethefoids.fun/logo.svg',
-        width: 600,
-        height: 60,
-        alt: 'NukeTheFoids.fun',
+        url: LOGO_URL,
+        width: LOGO_SIZE,
+        height: LOGO_SIZE,
+        alt: `${SITE_NAME} logo`,
+        type: 'image/png',
       },
     ],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     site: '@nukethefoids',
     creator: '@nukethefoids',
     title: 'NukeTheFoids.fun - News & Analysis',
-    description: 'In-depth news coverage, analysis, and commentary on current events, technology, and culture.',
-    images: ['https://nukethefoids.fun/logo.svg'],
+    description:
+      'In-depth news coverage, analysis, and commentary on current events, technology, and culture.',
+    images: [LOGO_URL],
   },
   robots: {
     index: true,
@@ -52,14 +73,47 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: 'https://nukethefoids.fun',
+    canonical: SITE_URL,
     types: {
       'application/rss+xml': [
         { url: '/rss.xml', title: 'NukeTheFoids.fun RSS Feed' },
       ],
     },
   },
+  other: {
+    'og:logo': LOGO_URL,
+  },
   verification: {},
+};
+
+export const viewport: Viewport = {
+  themeColor: '#000000',
+  width: 'device-width',
+  initialScale: 1,
+};
+
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': `${SITE_URL}/#organization`,
+  name: SITE_NAME,
+  url: SITE_URL,
+  description: SITE_DESCRIPTION,
+  logo: {
+    '@type': 'ImageObject',
+    '@id': `${LOGO_URL}#logo`,
+    url: LOGO_URL,
+    contentUrl: LOGO_URL,
+    width: LOGO_SIZE,
+    height: LOGO_SIZE,
+    caption: `${SITE_NAME} logo`,
+  },
+  image: {
+    '@type': 'ImageObject',
+    url: LOGO_URL,
+    width: LOGO_SIZE,
+    height: LOGO_SIZE,
+  },
 };
 
 export default function RootLayout({
@@ -72,10 +126,21 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
+        <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png" />
+        <link rel="icon" href="/logo.png" sizes="512x512" type="image/png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
+        <link rel="logo" type="image/png" href="/logo.png" />
+        <link rel="preload" as="image" href="/logo.png" type="image/png" fetchPriority="high" />
+        <meta name="theme-color" content="#000000" />
+        <meta property="og:logo" content="https://nukethefoids.fun/logo.png" />
       </head>
       <body className="d-flex flex-column min-vh-100">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
         <Navbar />
         <main className="flex-grow-1">
           {children}

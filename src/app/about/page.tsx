@@ -7,6 +7,29 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://nukethefoids.fun/about',
   },
+  openGraph: {
+    title: 'About | NukeTheFoids.fun',
+    description: 'Learn more about NukeTheFoids.fun - our mission, values, and the team behind the news coverage and analysis.',
+    url: 'https://nukethefoids.fun/about',
+    siteName: 'NukeTheFoids.fun',
+    locale: 'en_US',
+    type: 'website',
+    images: [
+      {
+        url: 'https://nukethefoids.fun/logo.png',
+        width: 512,
+        height: 512,
+        alt: 'NukeTheFoids.fun logo',
+        type: 'image/png',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'About | NukeTheFoids.fun',
+    description: 'Learn more about NukeTheFoids.fun - our mission, values, and the team behind the news coverage and analysis.',
+    images: ['https://nukethefoids.fun/logo.png'],
+  },
 };
 
 export default function AboutPage() {
@@ -18,14 +41,18 @@ export default function AboutPage() {
     url: 'https://nukethefoids.fun/about',
     mainEntity: {
       '@type': 'Organization',
+      '@id': 'https://nukethefoids.fun/#organization',
       name: 'NukeTheFoids.fun',
       url: 'https://nukethefoids.fun',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://nukethefoids.fun/logo.svg',
-        width: 600,
-        height: 60,
+        url: 'https://nukethefoids.fun/logo.png',
+        contentUrl: 'https://nukethefoids.fun/logo.png',
+        width: 512,
+        height: 512,
+        caption: 'NukeTheFoids.fun logo',
       },
+      image: 'https://nukethefoids.fun/logo.png',
     },
   };
 

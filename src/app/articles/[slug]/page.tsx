@@ -110,14 +110,18 @@ export default async function ArticlePage({ params }: Props) {
     },
     publisher: {
       '@type': 'Organization',
+      '@id': 'https://nukethefoids.fun/#organization',
       name: 'NukeTheFoids.fun',
       url: 'https://nukethefoids.fun',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://nukethefoids.fun/logo.svg',
-        width: 600,
-        height: 60,
+        url: 'https://nukethefoids.fun/logo.png',
+        contentUrl: 'https://nukethefoids.fun/logo.png',
+        width: 512,
+        height: 512,
+        caption: 'NukeTheFoids.fun logo',
       },
+      image: 'https://nukethefoids.fun/logo.png',
     },
     mainEntityOfPage: {
       '@type': 'WebPage',

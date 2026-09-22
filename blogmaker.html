@@ -56,6 +56,10 @@
   .status-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
   .status-dot.published { background:var(--green); }
   .status-dot.draft { background:var(--yellow); }
+  .article-item { position:relative; padding-right:2.2rem; }
+  .article-item-delete { position:absolute; top:0.5rem; right:0.5rem; width:24px; height:24px; display:none; align-items:center; justify-content:center; border:1px solid var(--border); border-radius:var(--radius); background:var(--bg); color:var(--fg3); cursor:pointer; font-size:0.75rem; line-height:1; }
+  .article-item:hover .article-item-delete { display:inline-flex; }
+  .article-item-delete:hover { color:#fff; background:var(--red); border-color:var(--red); }
 
   /* ===== Main Header ===== */
   .main-header { display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1.25rem; border-bottom:1px solid var(--border); background:var(--bg); }
@@ -193,6 +197,7 @@
       <div class="header-actions">
         <button class="btn btn-sm" id="btn-draft" onclick="saveAsDraft()">Save Draft</button>
         <button class="btn btn-sm btn-green" id="btn-publish" onclick="publishArticle()">Publish</button>
+        <button class="btn btn-sm btn-red" id="btn-delete" onclick="deleteCurrent()" title="Delete current article" style="display:none;">Delete</button>
       </div>
     </div>
 
@@ -315,6 +320,8 @@
     </div>
     <div class="modal-body">
       <p style="font-size:0.9rem;color:var(--fg2);">Are you sure you want to delete <strong id="delete-article-title"></strong>? This cannot be undone.</p>
+      <div id="delete-file-list" style="font-family:var(--mono);font-size:0.72rem;color:var(--fg2);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:0.6rem 0.75rem;margin-top:0.75rem;max-height:160px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;"></div>
+      <p style="font-size:0.75rem;color:var(--fg3);margin-top:0.5rem;">Article file + cover &amp; inline images above will be deleted from GitHub.</p>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeDeleteModal()">Cancel</button>
@@ -478,8 +485,9 @@ function renderArticleList() {
         <span>${a.status}</span>
         <span>&middot;</span>
         <span>${a.date || 'No date'}</span>
-        ${a.tags.length ? `<span>&middot;</span><span>${a.tags[0]}</span>` : ''}
+        ${a.tags.length ? `<span>&middot;</span><span>${escapeHtml(a.tags[0])}</span>` : ''}
       </div>
+      <button class="article-item-delete" title="Delete ${escapeHtml(a.title)}" onclick="event.stopPropagation();openDeleteModal('${a.slug}')">&#10005;</button>
     </div>
   `).join('');
 }
@@ -506,6 +514,7 @@ function createNew() {
   document.getElementById('editor').value = '';
   document.getElementById('cover-preview').innerHTML = '<span class="cover-preview-placeholder">No image</span>';
   document.getElementById('slug-preview').textContent = 'Slug: --';
+  document.getElementById('btn-delete').style.display = 'none';
   document.querySelectorAll('.article-item').forEach(el => el.classList.remove('active'));
 }
 
@@ -522,6 +531,7 @@ function loadArticle(slug) {
   document.getElementById('f-status').value = article.status;
   document.getElementById('f-pinned').checked = article.pinned;
   document.getElementById('editor').value = article.content;
+  document.getElementById('btn-delete').style.display = '';
   if (article.cover) {
     document.getElementById('cover-preview').innerHTML = `<img src="${article.cover}" alt="Cover">`;
   } else {
@@ -529,6 +539,11 @@ function loadArticle(slug) {
   }
   updateSlug();
   renderArticleList();
+}
+
+function deleteCurrent() {
+  if (!currentSlug) { showToast('No article selected', 'error'); return; }
+  openDeleteModal(currentSlug);
 }
 
 function updateSlug() {
@@ -830,12 +845,49 @@ async function saveAsDraft() {
 }
 
 // ===== Delete =====
+function collectArticleImages(article) {
+  if (!article) return [];
+  const found = [];
+  // 1. Cover from frontmatter, e.g. "/blog/cover-xxx.jpg"
+  if (article.cover && article.cover.startsWith('/blog/')) {
+    found.push('/public' + article.cover);
+  }
+  const body = article.content || '';
+  // 2. Markdown images: ![alt](/blog/xxx.jpg)
+  const mdRe = /!\[[^\]]*\]\(([^)\s]+)\)/g;
+  let m;
+  while ((m = mdRe.exec(body)) !== null) {
+    let p = m[1].trim().replace(/^["']|["']$/g, '');
+    if (p.startsWith('/blog/')) found.push('/public' + p);
+  }
+  // 3. HTML <img src="/blog/xxx.jpg">
+  const htmlRe = /<img[^>]+src=["']([^"']+)["']/gi;
+  while ((m = htmlRe.exec(body)) !== null) {
+    let p = m[1].trim();
+    if (p.startsWith('/blog/')) found.push('/public' + p);
+  }
+  // Dedupe, strip query/hash
+  const seen = new Set();
+  const out = [];
+  for (let p of found) {
+    p = p.split('?')[0].split('#')[0];
+    if (!seen.has(p)) { seen.add(p); out.push(p); }
+  }
+  return out;
+}
+
 function openDeleteModal(slug) {
   const article = articles.find(a => a.slug === slug);
   if (!article) return;
   deleteTargetSlug = slug;
   deleteTargetSha = article.sha;
-  document.getElementById('delete-article-title').textContent = article.title;
+  document.getElementById('delete-article-title').textContent = '"' + article.title + '"';
+  const filename = article.filename || `${slug}.mdx`;
+  const images = collectArticleImages(article);
+  const lines = [`/content/${filename}`, ...images];
+  document.getElementById('delete-file-list').textContent = lines.join('\n') + (images.length ? `\n\n(${images.length} image${images.length > 1 ? 's' : ''} + 1 article file)` : '\n\n(No images found, only article file)');
+  document.getElementById('btn-confirm-delete').disabled = false;
+  document.getElementById('btn-confirm-delete').textContent = 'Delete';
   document.getElementById('delete-modal').classList.add('open');
 }
 
@@ -845,20 +897,72 @@ function closeDeleteModal() {
   document.getElementById('delete-modal').classList.remove('open');
 }
 
-async function confirmDelete() {
-  if (!deleteTargetSlug || !deleteTargetSha) return;
+async function deleteRepoFile(repoPath, commitMessage) {
+  // Returns 'deleted' | 'skipped' (already gone), throws on real errors.
+  let info;
   try {
-    showToast('Deleting...');
-    await ghRequest(`/content/${deleteTargetSlug}.mdx`, 'DELETE', {
-      message: `Delete article: ${deleteTargetSlug}`,
-      sha: deleteTargetSha,
-    });
-    showToast('Article deleted!', 'success');
+    info = await ghRequest(repoPath);
+  } catch(e) {
+    if (/not found|404/i.test(e.message)) return 'skipped';
+    throw e;
+  }
+  if (!info || !info.sha) return 'skipped';
+  // ghRequest GET for a file returns an object; for a dir returns array — guard it.
+  if (Array.isArray(info)) throw new Error(`Cannot delete directory: ${repoPath}`);
+  await ghRequest(repoPath, 'DELETE', { message: commitMessage, sha: info.sha });
+  return 'deleted';
+}
+
+async function confirmDelete() {
+  if (!deleteTargetSlug) return;
+  const article = articles.find(a => a.slug === deleteTargetSlug);
+  const filename = (article && article.filename) || `${deleteTargetSlug}.mdx`;
+  const articlePath = `/content/${filename}`;
+  const images = collectArticleImages(article);
+  const btn = document.getElementById('btn-confirm-delete');
+  btn.disabled = true;
+  btn.textContent = 'Deleting...';
+  try {
+    showToast('Deleting article...');
+    // 1. Delete the article file itself (.mdx or .md — uses real filename).
+    const articleResult = await deleteRepoFile(articlePath, `Delete article: ${deleteTargetSlug}`);
+    // Fallback: slug renamed but old extension guessed wrong — try the other extension.
+    if (articleResult === 'skipped' && article && article.filename) {
+      // nothing extra to try; filename already exact
+    } else if (articleResult === 'skipped') {
+      const alt = filename.endsWith('.mdx')
+        ? `/content/${deleteTargetSlug}.md`
+        : `/content/${deleteTargetSlug}.mdx`;
+      if (alt !== articlePath) await deleteRepoFile(alt, `Delete article: ${deleteTargetSlug}`);
+    }
+    // 2. Delete cover + inline images under /public/blog/.
+    let deletedImages = 0, skippedImages = 0;
+    const failedImages = [];
+    for (const imgPath of images) {
+      try {
+        const r = await deleteRepoFile(imgPath, `Delete image ${imgPath.split('/').pop()} (from article ${deleteTargetSlug})`);
+        if (r === 'deleted') deletedImages++;
+        else skippedImages++;
+      } catch(e) {
+        failedImages.push(`${imgPath} (${e.message})`);
+      }
+    }
+    if (failedImages.length) {
+      showToast(`Article deleted, but ${failedImages.length} image(s) failed.`, 'error');
+      console.warn('Failed to delete images:', failedImages);
+    } else if (images.length) {
+      showToast(`Article + ${deletedImages} image(s) deleted!${skippedImages ? ` (${skippedImages} already gone)` : ''}`, 'success');
+    } else {
+      showToast(articleResult === 'deleted' ? 'Article deleted!' : 'Article file already gone.', 'success');
+    }
+    const wasCurrent = currentSlug === deleteTargetSlug;
     closeDeleteModal();
-    if (currentSlug === deleteTargetSlug) createNew();
+    if (wasCurrent) createNew();
     await loadArticles();
   } catch(e) {
     showToast('Failed: ' + e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Delete';
   }
 }
 
@@ -889,7 +993,7 @@ function loadSettings() {
 
 // ===== Utils =====
 function escapeHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function showToast(msg, type = '') {

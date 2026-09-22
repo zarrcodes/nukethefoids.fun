@@ -8,6 +8,29 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://nukethefoids.fun/articles',
   },
+  openGraph: {
+    title: 'Articles | NukeTheFoids.fun',
+    description: 'Read the latest articles, analysis, and commentary from NukeTheFoids.fun on current events, technology, and culture.',
+    url: 'https://nukethefoids.fun/articles',
+    siteName: 'NukeTheFoids.fun',
+    locale: 'en_US',
+    type: 'website',
+    images: [
+      {
+        url: 'https://nukethefoids.fun/logo.png',
+        width: 512,
+        height: 512,
+        alt: 'NukeTheFoids.fun logo',
+        type: 'image/png',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Articles | NukeTheFoids.fun',
+    description: 'Read the latest articles, analysis, and commentary from NukeTheFoids.fun on current events, technology, and culture.',
+    images: ['https://nukethefoids.fun/logo.png'],
+  },
 };
 
 export default function ArticlesPage() {
