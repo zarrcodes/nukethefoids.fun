@@ -11,6 +11,7 @@ export interface Post {
   excerpt: string;
   tags: string[];
   cover?: string;
+  status: string;
 }
 
 export function getPosts(): Post[] {
@@ -28,8 +29,10 @@ export function getPosts(): Post[] {
         excerpt: data.excerpt || '',
         tags: data.tags || [],
         cover: data.cover || '',
+        status: data.status || 'published',
       };
     })
+    .filter((post) => post.status !== 'draft')
     .sort((a, b) => {
       const dateA = a.date ? new Date(a.date).getTime() : 0;
       const dateB = b.date ? new Date(b.date).getTime() : 0;

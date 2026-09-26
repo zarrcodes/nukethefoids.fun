@@ -197,6 +197,7 @@
         </select>
       </div>
       <div class="slug-preview" id="slug-preview">Slug: --</div>
+      <div style="font-size:0.72rem;color:var(--fg3);margin-top:0.4rem;">Status <b>Draft</b> = tersembunyi dari web publik. Perubahan tayang setelah deploy Vercel selesai (~2 mnt).</div>
     </div>
   </div>
 </div>
@@ -301,6 +302,15 @@ async function ghRequest(path, method = 'GET', body = null) {
     throw new Error(err.message || `GitHub API error: ${res.status}`);
   }
   return res.status === 204 ? null : res.json();
+}
+
+// SHA terbaru sesaat sebelum save (anti conflict kalau file berubah dari sesi lain).
+async function getFreshSha(repoPath) {
+  try {
+    const info = await ghRequest(repoPath);
+    if (info && info.sha && !Array.isArray(info)) return info.sha;
+  } catch (e) { /* 404 = file baru, abaikan */ }
+  return null;
 }
 
 // ===== Load Posts =====
@@ -584,12 +594,21 @@ async function savePost(status) {
       message: `${currentSlug ? 'Update' : 'Publish'} post: ${title}`,
       content: btoa(unescape(encodeURIComponent(buildFrontmatter(data)))),
     };
-    if (existing) body.sha = existing.sha;
+    const freshSha = await getFreshSha(`/content/posts/${filename}`);
+    if (freshSha) body.sha = freshSha;
 
     await ghRequest(`/content/posts/${filename}`, 'PUT', body);
-    showToast(status === 'draft' ? 'Draft tersimpan!' : (currentSlug ? 'Postingan diupdate!' : 'Postingan dipublish!'), 'success');
-    createNew();
+    const wasUpdate = !!currentSlug;
+    imgBase64 = null;
+    imgFilename = null;
     await loadPosts();
+    currentSlug = slug;
+    loadPost(slug);
+    if (status === 'draft') {
+      showToast('Draft tersimpan (tidak tampil di web publik).', 'success');
+    } else {
+      showToast((wasUpdate ? 'Postingan diupdate! ' : 'Postingan dipublish! ') + 'Tayang di web setelah deploy Vercel selesai (~2 mnt).', 'success');
+    }
   } catch (e) {
     showToast('Gagal: ' + e.message, 'error');
   }

@@ -254,6 +254,7 @@
           </label>
         </div>
         <div class="slug-preview" id="slug-preview" style="font-family:var(--mono);font-size:0.75rem;color:var(--fg3);margin-bottom:0.75rem;">Slug: --</div>
+        <div style="font-size:0.72rem;color:var(--fg3);margin-bottom:0.75rem;">Status <b>Draft</b> = tersembunyi dari web publik. Perubahan tayang setelah deploy Vercel selesai (~2 mnt).</div>
       </div>
 
       <div>
@@ -837,6 +838,16 @@ function switchTab(tab, el) {
 }
 
 // ===== Publish / Save =====
+// Ambil SHA terbaru dari GitHub sesaat sebelum save (anti 409/conflict
+// kalau file berubah dari sesi/CMS lain setelah list dimuat).
+async function getFreshSha(repoPath) {
+  try {
+    const info = await ghRequest(repoPath);
+    if (info && info.sha && !Array.isArray(info)) return info.sha;
+  } catch (e) { /* 404 = file baru, abaikan */ }
+  return null;
+}
+
 function getFormData() {
   return {
     title: document.getElementById('f-title').value,
@@ -874,18 +885,17 @@ async function publishArticle() {
       content: btoa(unescape(encodeURIComponent(mdxContent))),
     };
 
-    if (currentSlug) {
-      const existing = articles.find(a => a.slug === currentSlug);
-      if (existing) body.sha = existing.sha;
-    }
+    const freshSha = await getFreshSha(`/content/${filename}`);
+    if (freshSha) body.sha = freshSha;
 
     await ghRequest(`/content/${filename}`, 'PUT', body);
-    showToast(currentSlug ? 'Article updated!' : 'Article published!', 'success');
-    currentSlug = null;
+    const wasUpdate = !!currentSlug;
     coverBase64 = null;
     coverFilename = null;
-    createNew();
     await loadArticles();
+    currentSlug = slug;
+    loadArticle(slug);
+    showToast((wasUpdate ? 'Artikel diupdate! ' : 'Artikel dipublish! ') + 'Tayang di web setelah deploy Vercel selesai (~2 mnt).', 'success');
   } catch(e) {
     showToast('Failed: ' + e.message, 'error');
   }
@@ -917,18 +927,16 @@ async function saveAsDraft() {
       content: btoa(unescape(encodeURIComponent(mdxContent))),
     };
 
-    if (currentSlug) {
-      const existing = articles.find(a => a.slug === currentSlug);
-      if (existing) body.sha = existing.sha;
-    }
+    const freshSha = await getFreshSha(`/content/${filename}`);
+    if (freshSha) body.sha = freshSha;
 
     await ghRequest(`/content/${filename}`, 'PUT', body);
-    showToast('Draft saved!', 'success');
-    currentSlug = null;
     coverBase64 = null;
     coverFilename = null;
-    createNew();
     await loadArticles();
+    currentSlug = slug;
+    loadArticle(slug);
+    showToast('Draft tersimpan sebagai DRAFT (tidak tampil di web publik). Tayang butuh status Published + deploy Vercel.', 'success');
   } catch(e) {
     showToast('Failed: ' + e.message, 'error');
   }
