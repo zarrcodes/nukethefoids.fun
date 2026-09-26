@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PostMaker CMS - NukeTheFoids.fun</title>
+<style>
+  :root {
+    --bg: #fff; --bg2: #f6f6f6; --bg3: #eee;
+    --fg: #000; --fg2: #555; --fg3: #888;
+    --border: #e0e0e0; --border2: #ccc;
+    --accent: #000; --accent-fg: #fff;
+    --green: #16a34a; --red: #dc2626; --yellow: #ca8a04;
+    --radius: 6px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: "SFMono-Regular", Consolas, monospace;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:var(--font); background:var(--bg2); color:var(--fg); min-height:100vh; }
+
+  .app { display:flex; height:100vh; overflow:hidden; }
+  .sidebar { width:300px; min-width:300px; background:var(--bg); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+  .main { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--bg); }
+
+  .sidebar-header { padding:1rem; border-bottom:1px solid var(--border); }
+  .sidebar-brand { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; }
+  .sidebar-brand h1 { font-size:1rem; font-weight:700; }
+  .sidebar-actions { display:flex; gap:0.35rem; }
+  .sidebar-actions button, .icon-btn { width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--border); border-radius:var(--radius); background:var(--bg); color:var(--fg2); cursor:pointer; font-size:0.85rem; transition:all 0.15s; }
+  .sidebar-actions button:hover, .icon-btn:hover { border-color:var(--accent); color:var(--fg); }
+
+  .sidebar-search { position:relative; }
+  .sidebar-search input { width:100%; padding:0.5rem 0.75rem 0.5rem 2rem; font-size:0.85rem; border:1px solid var(--border); border-radius:var(--radius); background:var(--bg2); outline:none; }
+  .sidebar-search input:focus { border-color:var(--accent); }
+  .sidebar-search-icon { position:absolute; left:0.6rem; top:50%; transform:translateY(-50%); color:var(--fg3); font-size:0.8rem; pointer-events:none; }
+
+  .filter-tabs { display:flex; gap:0; padding:0.5rem 1rem; border-bottom:1px solid var(--border); }
+  .filter-tab { padding:0.3rem 0.6rem; font-size:0.75rem; font-weight:500; border:none; background:none; color:var(--fg3); cursor:pointer; border-radius:var(--radius); transition:all 0.15s; }
+  .filter-tab:hover { color:var(--fg); background:var(--bg2); }
+  .filter-tab.active { color:var(--accent-fg); background:var(--accent); }
+  .filter-count { font-size:0.65rem; background:var(--bg3); padding:0.1rem 0.35rem; border-radius:10px; margin-left:0.25rem; }
+  .filter-tab.active .filter-count { background:rgba(255,255,255,0.2); }
+
+  .post-list { flex:1; overflow-y:auto; padding:0.5rem; }
+  .post-item { display:flex; gap:0.6rem; padding:0.55rem; border-radius:var(--radius); cursor:pointer; margin-bottom:0.25rem; transition:all 0.1s; border:1px solid transparent; position:relative; }
+  .post-item:hover { background:var(--bg2); }
+  .post-item.active { background:var(--bg2); border-color:var(--border); }
+  .post-item-thumb { width:52px; height:52px; border-radius:var(--radius); border:1px solid var(--border); overflow:hidden; background:var(--bg2); flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .post-item-thumb img { width:100%; height:100%; object-fit:cover; }
+  .post-item-thumb span { font-size:0.6rem; color:var(--fg3); }
+  .post-item-body { flex:1; min-width:0; }
+  .post-item-title { font-size:0.82rem; font-weight:600; margin-bottom:0.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .post-item-meta { display:flex; align-items:center; gap:0.35rem; font-size:0.68rem; color:var(--fg3); }
+  .status-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .status-dot.published { background:var(--green); }
+  .status-dot.draft { background:var(--yellow); }
+  .post-item-delete { position:absolute; top:0.4rem; right:0.4rem; width:22px; height:22px; display:none; align-items:center; justify-content:center; border:1px solid var(--border); border-radius:var(--radius); background:var(--bg); color:var(--fg3); cursor:pointer; font-size:0.7rem; line-height:1; }
+  .post-item:hover .post-item-delete { display:inline-flex; }
+  .post-item-delete:hover { color:#fff; background:var(--red); border-color:var(--red); }
+
+  .main-header { display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1.25rem; border-bottom:1px solid var(--border); background:var(--bg); }
+  .main-header h2 { font-size:0.95rem; font-weight:700; }
+  .header-actions { display:flex; gap:0.5rem; align-items:center; }
+
+  .editor-scroll { flex:1; overflow-y:auto; padding:1.25rem; max-width:640px; }
+  .field { margin-bottom:0.85rem; }
+  .field label { display:block; font-size:0.75rem; font-weight:600; margin-bottom:0.3rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--fg3); }
+  .field input, .field textarea, .field select { width:100%; padding:0.55rem 0.75rem; font-size:0.9rem; font-family:var(--font); background:var(--bg2); color:var(--fg); border:1px solid var(--border); border-radius:var(--radius); outline:none; transition:border 0.15s; }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color:var(--accent); }
+  .field textarea { resize:vertical; min-height:90px; line-height:1.6; }
+  .field-row { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+
+  .img-upload { display:flex; gap:0.75rem; align-items:flex-start; }
+  .img-preview { width:140px; height:140px; border-radius:var(--radius); border:1px solid var(--border); overflow:hidden; background:var(--bg2); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .img-preview img { width:100%; height:100%; object-fit:cover; }
+  .img-preview-placeholder { color:var(--fg3); font-size:0.7rem; text-align:center; padding:0.5rem; }
+  .img-side { flex:1; min-width:0; }
+  .img-actions { display:flex; gap:0.35rem; margin-bottom:0.4rem; flex-wrap:wrap; }
+  .img-info { font-family:var(--mono); font-size:0.7rem; color:var(--fg3); word-break:break-all; }
+  .slug-preview { font-family:var(--mono); font-size:0.75rem; color:var(--fg3); margin-top:0.75rem; }
+
+  .btn { padding:0.5rem 1rem; font-size:0.85rem; font-weight:600; font-family:var(--font); border-radius:var(--radius); cursor:pointer; transition:all 0.15s; border:1px solid var(--border); background:var(--bg2); color:var(--fg); }
+  .btn:hover { border-color:var(--accent); }
+  .btn-primary { background:var(--accent); color:var(--accent-fg); border-color:var(--accent); }
+  .btn-primary:hover { opacity:0.85; }
+  .btn-green { background:var(--green); color:#fff; border-color:var(--green); }
+  .btn-green:hover { opacity:0.85; }
+  .btn-red { background:var(--red); color:#fff; border-color:var(--red); }
+  .btn-red:hover { opacity:0.85; }
+  .btn-sm { padding:0.35rem 0.65rem; font-size:0.78rem; }
+  .btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:var(--bg); border-radius:var(--radius); width:90%; max-width:440px; box-shadow:0 8px 30px rgba(0,0,0,0.15); }
+  .modal-header { display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; border-bottom:1px solid var(--border); }
+  .modal-header h2 { font-size:1rem; font-weight:700; }
+  .modal-body { padding:1.25rem; }
+  .modal-footer { display:flex; justify-content:flex-end; gap:0.5rem; padding:0.75rem 1.25rem; border-top:1px solid var(--border); }
+
+  .toast { position:fixed; bottom:1.5rem; right:1.5rem; padding:0.65rem 1rem; background:var(--fg); color:var(--accent-fg); border-radius:var(--radius); font-size:0.85rem; font-weight:500; z-index:2000; transform:translateY(10px); opacity:0; transition:all 0.2s; pointer-events:none; }
+  .toast.show { transform:translateY(0); opacity:1; }
+  .toast.error { background:var(--red); }
+  .toast.success { background:var(--green); }
+
+  .empty-state { text-align:center; padding:3rem 1rem; color:var(--fg3); }
+  .empty-state p { font-size:0.9rem; margin-bottom:0.5rem; }
+  .loading { display:flex; align-items:center; justify-content:center; padding:2rem; color:var(--fg3); font-size:0.85rem; gap:0.5rem; }
+  .spinner { width:16px; height:16px; border:2px solid var(--border); border-top-color:var(--fg); border-radius:50%; animation:spin 0.6s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  @media (max-width: 768px) {
+    .app { flex-direction:column; }
+    .sidebar { width:100%; min-width:100%; max-height:40vh; border-right:none; border-bottom:1px solid var(--border); }
+    .field-row { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <h1>Postingan</h1>
+        <div class="sidebar-actions">
+          <button onclick="openSettings()" title="Pengaturan">&#9881;</button>
+          <button onclick="createNew()" title="Postingan Baru">+</button>
+        </div>
+      </div>
+      <div class="sidebar-search">
+        <span class="sidebar-search-icon">&#128269;</span>
+        <input type="text" id="search-input" placeholder="Cari postingan..." oninput="renderList()">
+      </div>
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="setFilter('all',this)">Semua<span class="filter-count" id="count-all">0</span></button>
+      <button class="filter-tab" onclick="setFilter('published',this)">Published<span class="filter-count" id="count-published">0</span></button>
+      <button class="filter-tab" onclick="setFilter('draft',this)">Draft<span class="filter-count" id="count-draft">0</span></button>
+    </div>
+    <div class="post-list" id="post-list">
+      <div class="loading"><div class="spinner"></div> Memuat...</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="main-header">
+      <h2 id="form-title">Postingan Baru</h2>
+      <div class="header-actions">
+        <button class="btn btn-sm" onclick="savePost('draft')">Simpan Draft</button>
+        <button class="btn btn-sm btn-green" onclick="savePost('published')">Publish</button>
+        <button class="btn btn-sm btn-red" id="btn-delete" onclick="deleteCurrent()" style="display:none;">Hapus</button>
+      </div>
+    </div>
+
+    <div class="editor-scroll">
+      <div class="field">
+        <label>Foto (wajib, otomatis dikompres 1:1)</label>
+        <div class="img-upload">
+          <div class="img-preview" id="img-preview">
+            <span class="img-preview-placeholder">Belum ada foto</span>
+          </div>
+          <div class="img-side">
+            <div class="img-actions">
+              <button class="btn btn-sm" onclick="document.getElementById('img-input').click()">Upload</button>
+              <button class="btn btn-sm" onclick="clearImage()">Hapus</button>
+            </div>
+            <div class="img-info" id="img-info">JPG, maks 1080x1080</div>
+          </div>
+          <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+        </div>
+      </div>
+      <div class="field">
+        <label>Judul</label>
+        <input type="text" id="f-title" placeholder="Judul postingan..." oninput="updateSlug()">
+      </div>
+      <div class="field">
+        <label>Caption</label>
+        <textarea id="f-caption" placeholder="Caption foto..."></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Kategori</label>
+          <input type="text" id="f-category" list="category-list" placeholder="Umum">
+          <datalist id="category-list"></datalist>
+        </div>
+        <div class="field">
+          <label>Tanggal</label>
+          <input type="date" id="f-date">
+        </div>
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select id="f-status">
+          <option value="published">Published</option>
+          <option value="draft">Draft</option>
+        </select>
+      </div>
+      <div class="slug-preview" id="slug-preview">Slug: --</div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Pengaturan GitHub</h2>
+      <button class="icon-btn" onclick="closeSettings()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>GitHub Token (PAT)</label>
+        <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Repo Owner</label>
+          <input type="text" id="gh-owner" placeholder="zarrcodes">
+        </div>
+        <div class="field">
+          <label>Repo Name</label>
+          <input type="text" id="gh-repo" placeholder="nukethefoids.fun">
+        </div>
+      </div>
+      <div style="font-size:0.75rem;color:var(--fg3);margin-top:0.5rem;">
+        Token butuh scope <code>repo</code>. Tersimpan di localStorage saja.
+        Key settings sama persis dengan blogmaker.html.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeSettings()">Batal</button>
+      <button class="btn btn-primary" onclick="saveSettings()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Hapus Postingan</h2>
+      <button class="icon-btn" onclick="closeDeleteModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.9rem;color:var(--fg2);">Yakin hapus <strong id="delete-post-title"></strong>? Tidak bisa dibatalkan.</p>
+      <div id="delete-file-list" style="font-family:var(--mono);font-size:0.72rem;color:var(--fg2);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:0.6rem 0.75rem;margin-top:0.75rem;max-height:160px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;"></div>
+      <p style="font-size:0.75rem;color:var(--fg3);margin-top:0.5rem;">File postingan + foto akan dihapus dari GitHub.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeDeleteModal()">Batal</button>
+      <button class="btn btn-red" id="btn-confirm-delete" onclick="confirmDelete()">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== State =====
+let posts = [];
+let currentSlug = null;
+let currentFilter = 'all';
+let imgBase64 = null;
+let imgFilename = null;
+let deleteTargetSlug = null;
+
+// ===== Init =====
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('f-date').valueAsDate = new Date();
+  loadPosts();
+});
+
+// ===== GitHub API (key localStorage sama dengan blogmaker.html) =====
+function getHeaders() {
+  const token = localStorage.getItem('gh_token');
+  return {
+    'Authorization': `token ${token}`,
+    'Accept': 'application/vnd.github.v3+json',
+    'Content-Type': 'application/json',
+  };
+}
+
+function getApiBase() {
+  const owner = localStorage.getItem('gh_owner') || '';
+  const repo = localStorage.getItem('gh_repo') || '';
+  return `https://api.github.com/repos/${owner}/${repo}/contents`;
+}
+
+function isConfigured() {
+  return localStorage.getItem('gh_token') && localStorage.getItem('gh_owner') && localStorage.getItem('gh_repo');
+}
+
+async function ghRequest(path, method = 'GET', body = null) {
+  const url = `${getApiBase()}${path}`;
+  const opts = { method, headers: getHeaders() };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `GitHub API error: ${res.status}`);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+// ===== Load Posts =====
+async function loadPosts() {
+  if (!isConfigured()) {
+    document.getElementById('post-list').innerHTML = '<div class="empty-state"><p>Atur GitHub dulu.</p><button class="btn btn-sm btn-primary" onclick="openSettings()">Buka Pengaturan</button></div>';
+    return;
+  }
+  document.getElementById('post-list').innerHTML = '<div class="loading"><div class="spinner"></div> Memuat...</div>';
+  try {
+    let items = [];
+    try {
+      items = await ghRequest('/content/posts');
+    } catch (e) {
+      if (/not found|404/i.test(e.message)) items = [];
+      else throw e;
+    }
+    posts = [];
+    for (const item of items) {
+      if (item.type !== 'file') continue;
+      if (!item.name.endsWith('.mdx') && !item.name.endsWith('.md')) continue;
+      try {
+        const file = await ghRequest(`/content/posts/${item.name}`);
+        const content = decodeURIComponent(escape(atob(file.content.replace(/\n/g, ''))));
+        const parsed = parseFrontmatter(content);
+        posts.push({
+          slug: item.name.replace(/\.(mdx|md)$/, ''),
+          filename: item.name,
+          sha: file.sha,
+          ...parsed,
+        });
+      } catch (e) {
+        console.warn(`Gagal memuat ${item.name}:`, e);
+      }
+    }
+    posts.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    renderCategoryDatalist();
+    renderList();
+  } catch (e) {
+    document.getElementById('post-list').innerHTML = `<div class="empty-state"><p>Gagal memuat.</p><p style="font-size:0.75rem;">${e.message}</p></div>`;
+  }
+}
+
+function yamlUnescape(s) {
+  return s.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+}
+
+function yamlEscape(s) {
+  return (s || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+}
+
+function parseFrontmatter(content) {
+  const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  const empty = { title: 'Tanpa judul', date: '', caption: '', category: 'Umum', image: '', status: 'draft' };
+  if (!match) return empty;
+  const fm = match[1];
+  const get = (name) => {
+    const m = fm.match(new RegExp(name + ':\\s*"((?:[^"\\\\]|\\\\.)*)"'));
+    return m ? yamlUnescape(m[1]) : '';
+  };
+  const getStatus = () => {
+    const m = fm.match(/status:\s*"?(draft|published)"?/);
+    return m ? m[1] : 'published';
+  };
+  return {
+    title: get('title') || 'Tanpa judul',
+    date: get('date'),
+    caption: get('caption'),
+    category: get('category') || 'Umum',
+    image: get('image'),
+    status: getStatus(),
+  };
+}
+
+function buildFrontmatter(data) {
+  let fm = '---\n';
+  fm += `title: "${yamlEscape(data.title)}"\n`;
+  if (data.date) fm += `date: "${data.date}"\n`;
+  if (data.caption) fm += `caption: "${yamlEscape(data.caption)}"\n`;
+  fm += `category: "${yamlEscape(data.category || 'Umum')}"\n`;
+  if (data.image) fm += `image: "${data.image}"\n`;
+  fm += `status: "${data.status || 'draft'}"\n`;
+  fm += '---\n';
+  return fm;
+}
+
+// ===== Render Sidebar =====
+function renderList() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const filtered = posts.filter((p) => {
+    if (currentFilter === 'published' && p.status !== 'published') return false;
+    if (currentFilter === 'draft' && p.status !== 'draft') return false;
+    if (search && !p.title.toLowerCase().includes(search) && !(p.caption || '').toLowerCase().includes(search) && !(p.category || '').toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  document.getElementById('count-all').textContent = posts.length;
+  document.getElementById('count-published').textContent = posts.filter((p) => p.status === 'published').length;
+  document.getElementById('count-draft').textContent = posts.filter((p) => p.status === 'draft').length;
+
+  if (filtered.length === 0) {
+    document.getElementById('post-list').innerHTML = '<div class="empty-state"><p>Tidak ada postingan.</p></div>';
+    return;
+  }
+
+  document.getElementById('post-list').innerHTML = filtered.map((p) => `
+    <div class="post-item ${p.slug === currentSlug ? 'active' : ''}" onclick="loadPost('${p.slug}')">
+      <div class="post-item-thumb">${p.image ? `<img src="https://raw.githubusercontent.com/${localStorage.getItem('gh_owner')}/${localStorage.getItem('gh_repo')}/main/public${p.image}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='<span>?</span>'">` : '<span>-</span>'}</div>
+      <div class="post-item-body">
+        <div class="post-item-title">${escapeHtml(p.title)}</div>
+        <div class="post-item-meta">
+          <span class="status-dot ${p.status}"></span>
+          <span>${p.status}</span>
+          <span>&middot;</span>
+          <span>${escapeHtml(p.category || 'Umum')}</span>
+        </div>
+      </div>
+      <button class="post-item-delete" title="Hapus" onclick="event.stopPropagation();openDeleteModal('${p.slug}')">&#10005;</button>
+    </div>
+  `).join('');
+}
+
+function setFilter(filter, el) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-tab').forEach((t) => t.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+function renderCategoryDatalist() {
+  const cats = [...new Set(posts.map((p) => p.category).filter(Boolean))].sort();
+  document.getElementById('category-list').innerHTML = cats.map((c) => `<option value="${escapeHtml(c)}">`).join('');
+}
+
+// ===== Form =====
+function createNew() {
+  currentSlug = null;
+  imgBase64 = null;
+  imgFilename = null;
+  document.getElementById('form-title').textContent = 'Postingan Baru';
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-caption').value = '';
+  document.getElementById('f-category').value = '';
+  document.getElementById('f-date').valueAsDate = new Date();
+  document.getElementById('f-status').value = 'published';
+  document.getElementById('img-preview').innerHTML = '<span class="img-preview-placeholder">Belum ada foto</span>';
+  document.getElementById('img-info').textContent = 'JPG, maks 1080x1080';
+  document.getElementById('slug-preview').textContent = 'Slug: --';
+  document.getElementById('btn-delete').style.display = 'none';
+  document.querySelectorAll('.post-item').forEach((el) => el.classList.remove('active'));
+}
+
+function loadPost(slug) {
+  const post = posts.find((p) => p.slug === slug);
+  if (!post) return;
+  currentSlug = slug;
+  imgBase64 = null;
+  imgFilename = null;
+  document.getElementById('form-title').textContent = 'Edit Postingan';
+  document.getElementById('f-title').value = post.title;
+  document.getElementById('f-caption').value = post.caption || '';
+  document.getElementById('f-category').value = post.category || '';
+  document.getElementById('f-date').value = post.date;
+  document.getElementById('f-status').value = post.status;
+  document.getElementById('btn-delete').style.display = '';
+  if (post.image) {
+    document.getElementById('img-preview').innerHTML = `<img src="${post.image}" alt="Foto">`;
+    document.getElementById('img-info').textContent = post.image;
+  } else {
+    document.getElementById('img-preview').innerHTML = '<span class="img-preview-placeholder">Belum ada foto</span>';
+    document.getElementById('img-info').textContent = 'JPG, maks 1080x1080';
+  }
+  updateSlug();
+  renderList();
+}
+
+function updateSlug() {
+  const title = document.getElementById('f-title').value;
+  const slug = title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  document.getElementById('slug-preview').textContent = 'Slug: ' + (slug || '--');
+}
+
+function getSlug() {
+  return document.getElementById('f-title').value.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'untitled';
+}
+
+// ===== Image Upload (kompres 1:1 untuk grid) =====
+function compressSquare(file, size, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const side = Math.min(img.width, img.height);
+        const sx = (img.width - side) / 2;
+        const sy = (img.height - side) / 2;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        canvas.getContext('2d').drawImage(img, sx, sy, side, side, 0, 0, size, size);
+        canvas.toBlob((blob) => {
+          if (!blob) { reject(new Error('Kompresi gagal')); return; }
+          const r2 = new FileReader();
+          r2.onload = () => resolve({ base64: r2.result.split(',')[1], sizeKB: Math.round(blob.size / 1024) });
+          r2.readAsDataURL(blob);
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = () => reject(new Error('Gagal memuat gambar'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('Gagal membaca file'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function handleImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  imgFilename = `post-${getSlug()}-${Date.now()}.jpg`;
+  showToast('Mengompres foto...');
+  compressSquare(file, 1080, 0.82).then((result) => {
+    imgBase64 = result.base64;
+    document.getElementById('img-preview').innerHTML = `<img src="data:image/jpeg;base64,${result.base64}" alt="Foto">`;
+    document.getElementById('img-info').textContent = `${imgFilename} (${result.sizeKB}KB, 1080x1080) — belum diupload`;
+    showToast(`Terkompres: ${result.sizeKB}KB`, 'success');
+  }).catch((err) => {
+    showToast('Kompresi gagal: ' + err.message, 'error');
+  });
+  e.target.value = '';
+}
+
+function clearImage() {
+  imgBase64 = null;
+  imgFilename = null;
+  document.getElementById('img-preview').innerHTML = '<span class="img-preview-placeholder">Belum ada foto</span>';
+  document.getElementById('img-info').textContent = 'JPG, maks 1080x1080';
+  document.getElementById('img-input').value = '';
+}
+
+async function uploadImage(base64Data, filename) {
+  const path = `/public/post/${filename}`;
+  const body = { message: `Upload ${filename}`, content: base64Data };
+  try {
+    const existing = await ghRequest(path);
+    if (existing && existing.sha) body.sha = existing.sha;
+  } catch (e) { /* file baru, abaikan */ }
+  await ghRequest(path, 'PUT', body);
+  return `/post/${filename}`;
+}
+
+// ===== Save =====
+async function savePost(status) {
+  if (!isConfigured()) { openSettings(); return; }
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { showToast('Judul wajib diisi', 'error'); return; }
+  const existing = currentSlug ? posts.find((p) => p.slug === currentSlug) : null;
+  if (!imgBase64 && !imgFilename && !(existing && existing.image)) {
+    showToast('Foto wajib diupload', 'error');
+    return;
+  }
+
+  const slug = currentSlug || getSlug();
+  const filename = `${slug}.mdx`;
+  const data = {
+    title,
+    date: document.getElementById('f-date').value,
+    caption: document.getElementById('f-caption').value,
+    category: document.getElementById('f-category').value.trim() || 'Umum',
+    status,
+  };
+
+  try {
+    showToast('Menyimpan...');
+    if (imgBase64 && imgFilename) {
+      data.image = await uploadImage(imgBase64, imgFilename);
+    } else if (existing && existing.image) {
+      data.image = existing.image;
+    }
+
+    const body = {
+      message: `${currentSlug ? 'Update' : 'Publish'} post: ${title}`,
+      content: btoa(unescape(encodeURIComponent(buildFrontmatter(data)))),
+    };
+    if (existing) body.sha = existing.sha;
+
+    await ghRequest(`/content/posts/${filename}`, 'PUT', body);
+    showToast(status === 'draft' ? 'Draft tersimpan!' : (currentSlug ? 'Postingan diupdate!' : 'Postingan dipublish!'), 'success');
+    createNew();
+    await loadPosts();
+  } catch (e) {
+    showToast('Gagal: ' + e.message, 'error');
+  }
+}
+
+// ===== Delete (file + foto otomatis) =====
+function collectPostImages(post) {
+  if (!post) return [];
+  const found = [];
+  if (post.image && post.image.startsWith('/post/')) found.push('/public' + post.image);
+  if (post.image && post.image.startsWith('/blog/')) found.push('/public' + post.image);
+  const cap = post.caption || '';
+  const mdRe = /!\[[^\]]*\]\(([^)\s]+)\)/g;
+  let m;
+  while ((m = mdRe.exec(cap)) !== null) {
+    const p = m[1].trim();
+    if (p.startsWith('/post/') || p.startsWith('/blog/')) found.push('/public' + p.split('?')[0].split('#')[0]);
+  }
+  return [...new Set(found)];
+}
+
+function openDeleteModal(slug) {
+  const post = posts.find((p) => p.slug === slug);
+  if (!post) return;
+  deleteTargetSlug = slug;
+  document.getElementById('delete-post-title').textContent = '"' + post.title + '"';
+  const filename = post.filename || `${slug}.mdx`;
+  const lines = [`/content/posts/${filename}`, ...collectPostImages(post)];
+  document.getElementById('delete-file-list').textContent = lines.join('\n');
+  const btn = document.getElementById('btn-confirm-delete');
+  btn.disabled = false;
+  btn.textContent = 'Hapus';
+  document.getElementById('delete-modal').classList.add('open');
+}
+
+function closeDeleteModal() {
+  deleteTargetSlug = null;
+  document.getElementById('delete-modal').classList.remove('open');
+}
+
+function deleteCurrent() {
+  if (!currentSlug) { showToast('Tidak ada postingan dipilih', 'error'); return; }
+  openDeleteModal(currentSlug);
+}
+
+async function deleteRepoFile(repoPath, commitMessage) {
+  let info;
+  try {
+    info = await ghRequest(repoPath);
+  } catch (e) {
+    if (/not found|404/i.test(e.message)) return 'skipped';
+    throw e;
+  }
+  if (!info || !info.sha || Array.isArray(info)) return 'skipped';
+  await ghRequest(repoPath, 'DELETE', { message: commitMessage, sha: info.sha });
+  return 'deleted';
+}
+
+async function confirmDelete() {
+  if (!deleteTargetSlug) return;
+  const post = posts.find((p) => p.slug === deleteTargetSlug);
+  const filename = (post && post.filename) || `${deleteTargetSlug}.mdx`;
+  const btn = document.getElementById('btn-confirm-delete');
+  btn.disabled = true;
+  btn.textContent = 'Menghapus...';
+  try {
+    showToast('Menghapus postingan...');
+    await deleteRepoFile(`/content/posts/${filename}`, `Delete post: ${deleteTargetSlug}`);
+    let deleted = 0;
+    for (const imgPath of collectPostImages(post)) {
+      try {
+        if ((await deleteRepoFile(imgPath, `Delete image ${imgPath.split('/').pop()} (from post ${deleteTargetSlug})`)) === 'deleted') deleted++;
+      } catch (e) {
+        console.warn('Gagal hapus gambar:', imgPath, e);
+      }
+    }
+    showToast(deleted ? `Postingan + ${deleted} foto dihapus!` : 'Postingan dihapus!', 'success');
+    const wasCurrent = currentSlug === deleteTargetSlug;
+    closeDeleteModal();
+    if (wasCurrent) createNew();
+    await loadPosts();
+  } catch (e) {
+    showToast('Gagal: ' + e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Hapus';
+  }
+}
+
+// ===== Settings =====
+function openSettings() {
+  document.getElementById('gh-token').value = localStorage.getItem('gh_token') || '';
+  document.getElementById('gh-owner').value = localStorage.getItem('gh_owner') || '';
+  document.getElementById('gh-repo').value = localStorage.getItem('gh_repo') || '';
+  document.getElementById('settings-modal').classList.add('open');
+}
+
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('open');
+}
+
+function saveSettings() {
+  localStorage.setItem('gh_token', document.getElementById('gh-token').value);
+  localStorage.setItem('gh_owner', document.getElementById('gh-owner').value);
+  localStorage.setItem('gh_repo', document.getElementById('gh-repo').value);
+  closeSettings();
+  showToast('Pengaturan tersimpan!', 'success');
+  loadPosts();
+}
+
+// ===== Utils =====
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function showToast(msg, type = '') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => { toast.className = 'toast'; }, 3000);
+}
+</script>
+</body>
+</html>

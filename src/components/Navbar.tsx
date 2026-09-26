@@ -12,6 +12,7 @@ export default function Navbar() {
   const navItems = [
     { name: 'Beranda', path: '/' },
     { name: 'Blog', path: '/blog' },
+    { name: 'Post', path: '/post' },
     { name: 'Tentang', path: '/about' },
   ];
 
