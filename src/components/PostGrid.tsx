@@ -104,7 +104,7 @@ export default function PostGrid({ posts, categories }: PostGridProps) {
                       src={post.image}
                       alt={post.title}
                       fill
-                      sizes="(max-width: 600px) 50vw, (max-width: 1100px) 33vw, 25vw"
+                      sizes="(max-width: 600px) 84px, 110px"
                       loading={idx < 2 ? undefined : 'lazy'}
                       priority={idx < 2}
                     />
