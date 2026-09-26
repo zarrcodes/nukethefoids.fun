@@ -355,84 +355,193 @@ a { color: inherit; }
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.5px;
-  margin: 0.5rem 0 1.5rem;
+  margin: 0.5rem 0 0;
+  text-wrap: balance;
 }
 
-/* ===== MDX Content ===== */
+/* Lede: excerpt tampil besar di bawah judul */
+.article-lede {
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: #333;
+  font-weight: 400;
+  margin: 1rem 0 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ===== MDX Content: baca nyaman, teks near-black ===== */
 .article-content {
-  font-size: 1.05rem;
-  line-height: 1.8;
+  font-size: 1.075rem;
+  line-height: 1.85;
+  color: #1a1a1a;
+  overflow-wrap: break-word;
 }
 
 .article-content h2 {
   font-size: 1.5rem;
-  font-weight: 700;
-  margin-top: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  line-height: 1.35;
+  margin-top: 2.5rem;
   margin-bottom: 0.75rem;
+  color: #000;
+  text-wrap: balance;
 }
 
 .article-content h3 {
   font-size: 1.2rem;
   font-weight: 700;
+  line-height: 1.4;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  color: #000;
+  text-wrap: balance;
+}
+
+.article-content h4 {
+  font-size: 1.05rem;
+  font-weight: 700;
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
+  color: #000;
 }
 
 .article-content p {
-  margin-bottom: 1.25rem;
-  color: var(--fg2);
+  margin-bottom: 1.4rem;
+  color: #1a1a1a;
+}
+
+.article-content strong {
+  color: #000;
+}
+
+.article-content a {
+  color: #000;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.article-content a:hover {
+  text-decoration-thickness: 2px;
+  background: #f0f0f0;
 }
 
 .article-content ul,
 .article-content ol {
   padding-left: 1.5rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.4rem;
 }
 
 .article-content li {
-  margin-bottom: 0.4rem;
-  color: var(--fg2);
+  margin-bottom: 0.5rem;
+  color: #1a1a1a;
+}
+
+.article-content li::marker {
+  color: #000;
+  font-weight: 700;
 }
 
 .article-content blockquote {
   border-left: 3px solid #000;
-  padding: 0.5rem 1rem;
-  margin: 1.25rem 0;
-  color: var(--fg2);
+  background: #fafafa;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  color: #1a1a1a;
+  border-radius: 0 6px 6px 0;
+}
+
+.article-content blockquote p:last-child {
+  margin-bottom: 0;
 }
 
 .article-content code {
   font-family: "SFMono-Regular", Consolas, monospace;
-  font-size: 0.88em;
+  font-size: 0.85em;
   padding: 0.15em 0.4em;
   background: var(--bg2);
+  border: 1px solid var(--border);
   border-radius: 4px;
+  color: #000;
 }
 
 .article-content pre {
-  background: var(--bg2);
-  border-radius: 6px;
-  padding: 1rem;
+  background: #111;
+  color: #f5f5f5;
+  border-radius: 8px;
+  padding: 1.1rem 1.25rem;
   overflow-x: auto;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.88rem;
+  line-height: 1.65;
 }
 
 .article-content pre code {
   background: none;
+  border: none;
   padding: 0;
+  color: inherit;
 }
 
 .article-content img {
   width: 100%;
   height: auto;
-  margin: 1.5rem 0;
-  border-radius: 6px;
+  margin: 1.75rem 0;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  display: block;
 }
 
 .article-content hr {
   border: none;
   border-top: 1px solid var(--border);
-  margin: 2rem 0;
+  margin: 2.5rem auto;
+  max-width: 240px;
+}
+
+.article-content del,
+.article-content s {
+  color: #555;
+}
+
+/* GFM tables */
+.article-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  display: block;
+  overflow-x: auto;
+}
+
+.article-content thead {
+  background: #000;
+  color: #fff;
+}
+
+.article-content th,
+.article-content td {
+  border: 1px solid var(--border);
+  padding: 0.6rem 0.85rem;
+  text-align: left;
+}
+
+.article-content tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* GFM task lists */
+.article-content li.task-list-item {
+  list-style: none;
+  margin-left: -1.5rem;
+}
+
+.article-content input[type="checkbox"] {
+  margin-right: 0.5rem;
+  accent-color: #000;
 }
 
 /* ===== Page ===== */
@@ -444,13 +553,18 @@ a { color: inherit; }
 }
 
 .page-content {
-  font-size: 1.05rem;
-  line-height: 1.8;
-  color: var(--fg2);
+  font-size: 1.075rem;
+  line-height: 1.85;
+  color: #1a1a1a;
 }
 
 .page-content p {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.4rem;
+}
+
+::selection {
+  background: #000;
+  color: #fff;
 }
 
 /* ===== Breadcrumbs ===== */
@@ -640,19 +754,6 @@ a { color: inherit; }
 .pagination-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
-}
-
-/* ===== Comments Section ===== */
-.comments-section {
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--border);
-}
-
-.comments-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
 }
 
 /* ===== Empty State ===== */

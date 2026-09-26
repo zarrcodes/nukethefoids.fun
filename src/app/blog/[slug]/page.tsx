@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation';
 import { MDXRemote } from 'next-mdx-remote/rsc';
+import remarkGfm from 'remark-gfm';
 import { getPostBySlug, getRawMDX, generateStaticParamsForPosts } from '@/lib/mdx';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import ScrollToTop from '@/components/ScrollToTop';
-import CusdisComments from '@/components/CusdisComments';
 
 const SITE_URL = 'https://nukethefoids.fun';
 const LOGO_URL = `${SITE_URL}/logo.png`;
@@ -37,6 +37,13 @@ function createMDXComponents() {
 export async function generateStaticParams() {
   return generateStaticParamsForPosts();
 }
+
+// Markdown penuh (GFM): tabel, strikethrough, task list, autolink
+const mdxOptions = {
+  mdxOptions: {
+    remarkPlugins: [remarkGfm],
+  },
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -225,14 +232,12 @@ export default async function BlogPostPage({ params }: Props) {
             {post?.date && new Date(post.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
           </time>
           <h1 className="article-title" itemProp="headline">{post?.title}</h1>
+          {post?.excerpt && (
+            <p className="article-lede">{post.excerpt}</p>
+          )}
           <div className="article-content" itemProp="articleBody">
-            <MDXRemote source={raw} components={createMDXComponents()} />
+            <MDXRemote source={raw} components={createMDXComponents()} options={mdxOptions} />
           </div>
-          <CusdisComments
-            pageId={slug}
-            pageUrl={url}
-            pageTitle={post?.title || slug}
-          />
         </div>
       </article>
     </>
